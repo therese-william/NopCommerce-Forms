@@ -1,8 +1,0 @@
-Group: Widgets
-FriendlyName: Tickets System
-SystemName: Tickets.System
-Version: 1.95
-SupportedVersions: 3.60
-Author: nop4you.com
-DisplayOrder: 2
-FileName: Nop.Plugin.Widgets.Tickets.dll

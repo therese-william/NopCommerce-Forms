@@ -1,8 +1,0 @@
-﻿Group: Misc
-FriendlyName: Forms
-SystemName: Misc.Forms
-Version: 1.0
-SupportedVersions: 3.60
-Author: Therese Missiha
-DisplayOrder: 1
-FileName: Nop.Plugin.Misc.Forms.dll

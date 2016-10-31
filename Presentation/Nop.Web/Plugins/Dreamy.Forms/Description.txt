@@ -1,8 +1,0 @@
-﻿Group: Dreamy
-FriendlyName: Forms
-SystemName: Dreamy.Forms
-Version: 1.0
-SupportedVersions: 3.60
-Author: Therese Missiha
-DisplayOrder: 1
-FileName: Nop.Plugin.Dreamy.Forms.dll
