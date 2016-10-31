@@ -1,0 +1,20 @@
+﻿@{
+    
+    var myClassList = Session["MyticketList"] != null ? "active" : "inactive";
+    var myClassAdd = Session["MyticketAdd"] != null ? "active" : "inactive";
+
+    Session["MyticketList"] = null;
+    Session["MyticketAdd"] = null;
+}
+
+<li>
+    <a href="@Url.RouteUrl("Nop.Plugin.Widgets.Tickets.MyAccountList")" class="@(myClassList)">
+        @T("Ticket.ListTickets")
+    </a>
+</li>
+<li>
+    <a href="@Url.RouteUrl("Nop.Plugin.Widgets.Tickets.AddNewTicket")" class="@(myClassAdd)">
+        @T("Ticket.AddNewTicket")
+    </a>
+</li>
+

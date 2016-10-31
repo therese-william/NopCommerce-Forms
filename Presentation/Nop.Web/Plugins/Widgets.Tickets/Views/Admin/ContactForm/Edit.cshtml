@@ -1,0 +1,36 @@
+﻿@model Nop.Plugin.Widgets.Tickets.Models.ContactAttributeModel
+@using Nop.Web.Framework;
+
+@{
+    Layout = "~/Administration/Views/Shared/_AdminLayout.cshtml";
+
+    //page title
+    ViewBag.Title = T("Admin.Tickets.ContactAttributes.EditAttributeDetails").Text;
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+            @T("Admin.Tickets.ContactAttributes.EditAttributeDetails") - @Model.Name @Html.ActionLink("(" + T("Admin.Tickets.ContactAttributes.BackToList") + ")", "Configure", "Plugins/Tickets/ContactAttribute")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />            
+        </div>
+    </div>
+    @Html.Partial("~/Plugins/Widgets.Tickets/Views/Admin/ContactForm/_CreateOrUpdate.cshtml", Model)
+}
+
+<script>
+    function ConfirmDelete() {
+        var x = confirm("Are you sure you want to delete?");
+        if (x)
+            setLocation('Admin/Plugins/Tickets/ContactAttribute/Delete/@Model.Id');
+        else
+            return false;
+    }
+</script>    
+

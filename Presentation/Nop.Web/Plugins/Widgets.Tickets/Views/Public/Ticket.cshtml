@@ -1,0 +1,257 @@
+﻿@model Nop.Plugin.Widgets.Tickets.Models.TicketCustomerModel
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework.Localization;
+@using Nop.Services.Localization;
+@using Nop.Core;
+@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+    Html.AppendCssFileParts("~/Plugins/Widgets.Tickets/Content/styles.css");
+
+    Html.AddCssFileParts("~/Scripts/fineuploader/fineuploader-4.2.2.min.css");
+    Html.AddScriptParts("~/Scripts/fineuploader/jquery.fineuploader-4.2.2.min.js");
+
+    Html.AddScriptParts("~/Scripts/jquery.magnific-popup.js");
+    Html.AddCssFileParts("~/Content/magnific-popup/magnific-popup.css");
+
+}
+<style>
+    .white-popup-block {
+        position: relative;
+        background: #FFF;
+        width: auto;
+        max-width: 500px;
+        margin: 20px auto;
+    }
+</style>
+@section left
+{
+    @Html.Partial("~/Plugins/Widgets.Tickets/Views/Public/MyAccountNavigation.cshtml", Model.NavigationModel, new ViewDataDictionary())
+}
+
+
+<div class="page account-page customer-info-page">
+    <div class="page-title">
+        <h1>@T("Account.MyAccount") - @T("Account.Ticket.Details") : @Model.Ticket.Id</h1>
+    </div>
+    <div class="page-body">
+        <table id="tickettable" cellspacing="0">
+            <tr>
+                <td class="head">
+                    @T("Ticket.Fields.Created").Text
+                </td>
+                <td class="spec">
+                    @Model.Ticket.Created
+                </td>
+                <td class="head">
+                    @T("Ticket.Fields.Status").Text
+                </td>
+                <td class="spec">
+                    @Model.Ticket.TicketStatus
+                </td>
+                <td class="head">
+                    @T("Ticket.Fields.Deparment").Text
+                </td>
+                <td class="spec">
+                    @Model.Ticket.Deparment
+                </td>
+            </tr>
+            <tr>
+                <td class="head">
+                    @T("Ticket.Fields.Subject").Text
+                </td>
+                <td class="spec" colspan="5">
+                    @Model.Ticket.Subject
+                </td>
+            </tr>
+            <tr>
+                <td class="head">
+                    @T("Ticket.Fields.Body").Text
+                </td>
+                <td class="spec" colspan="5">
+                    @Html.Raw(Model.Ticket.Body)
+                </td>
+            </tr>
+            @if (Model.Ticket.AttachmentId != 0)
+            {
+                <tr>
+                    <td class="head">
+                        @T("Ticket.Fields.Attachment").Text
+                    </td>
+                    <td class="spec" colspan="5">
+                        @Html.RouteLink(@T("Ticket.Fields.DownloadAttachment").Text, "Nop.Plugin.Widgets.Tickets.DownloadFile", new { downloadGuid = Model.Ticket.Attachment })
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+
+    @if (Model.Ticket.TicketCustomerLines.Count > 0)
+    {
+
+        <div class="page-title">
+            <h1>@T("Account.Ticket.Response")</h1>
+        </div>
+
+        <div class="page-body">
+            <table id="tickettable" cellspacing="0">
+                <tr>
+                    <td class="head">
+                        @T("Ticket.Fields.Created").Text
+                    </td>
+                    <td class="head">
+                        @T("Ticket.Fields.Response").Text
+                    </td>
+                    <td class="head">
+                        @T("Ticket.Fields.Attachment").Text
+                    </td>
+                    <td class="head">
+                        @T("Ticket.Fields.User").Text
+                    </td>
+                </tr>
+                @foreach (var item in Model.Ticket.TicketCustomerLines)
+                {
+                    var thclassCol = (item.User != Model.Ticket.CustomerEmail) ? "spec" : "specalt";
+                    var tdclassCol = (item.User != Model.Ticket.CustomerEmail) ? "" : "alt";
+                    <tr>
+                        <th scope="row" class="@(thclassCol)">
+                            @item.Created
+                        </th>
+                        <td class="@(tdclassCol)">
+                            @Html.Raw(item.Body)
+                        </td>
+                        <td class="@(tdclassCol)">
+                            @if (item.AttachmentId > 0)
+                            {
+                                @Html.RouteLink(@T("Ticket.Fields.DownloadAttachment").Text, "Nop.Plugin.Widgets.Tickets.DownloadFile", new { downloadGuid = item.Attachment })
+                            }
+                        </td>
+                        <td class="@(tdclassCol)">
+                            @item.User
+                        </td>
+                    </tr>
+
+                }
+
+            </table>
+        </div>
+    }
+
+    @if (Model.Ticket.TicketStatus != "Close")
+    {
+
+        <script type="text/javascript">
+            var AttachmentId = 0;
+
+            $(document).ready(function () {
+                $('.linkCreate').magnificPopup({
+                    type: 'inline',
+                    preloader: false,
+                });
+            });
+
+        </script>
+        <a class="linkCreate" href="#open-Modal">@T("Ticket.Link.CreateResponse").Text</a>
+
+        <div id="open-Modal" class="white-popup-block mfp-hide">
+            @using (Html.BeginForm())
+            {
+                @Html.HiddenFor(model => model.Ticket.TicketCustomerNewLine.AttachmentId)
+                @Html.HiddenFor(model => model.Ticket.Id)
+                <div class="open-Modal-header" style="padding: 20px 30px 15px 20px;">
+                    <h3>@T("Ticket.Header.CreateResponse").Text</h3>
+                </div>
+                <table id="tickettable" cellspacing="0">
+                    <tr>
+                        <td class="head" style="text-align: right; vertical-align: top !important;">
+                            @T("Ticket.Fields.Response").Text
+                        </td>
+                        <td class="spec">
+                            @Html.TextAreaFor(model => model.Ticket.TicketCustomerNewLine.Body, new { @style = "height:100px;width: 100%;" })
+                            @Html.ValidationMessageFor(model => model.Ticket.TicketCustomerNewLine.Body)
+                        </td>
+                    </tr>
+                    @if (Model.ResponseAttachment)
+                    {
+                        <tr>
+                            <td class="head" style="text-align: right; vertical-align: top !important;">
+                                @T("Ticket.Fields.Attachment").Text
+                            </td>
+                            <td class="spec">
+                                <div>
+
+                                    <div id="clientId1">
+                                        <noscript>
+                                            <p>
+                                                Please enable JavaScript to use file uploader.
+                                            </p>
+                                        </noscript>
+                                    </div>
+                                    @*fine uploader container*@
+                                    <div id="clientId1uploader"></div>
+                                    @*fine uploader template (keep it synchronized to \Content\fineuploader\templates\default.html)*@
+                                    <script type="text/template" id="clientId1-qq-template">
+                                        <div class="qq-uploader-selector qq-uploader">
+                                            <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                                                <span>@T("Common.FileUploader.DropFiles")</span>
+                                            </div>
+                                            <div class="qq-upload-button-selector qq-upload-button">
+                                                <div>@T("Common.FileUploader.Upload")</div>
+                                            </div>
+                                            <span class="qq-drop-processing-selector qq-drop-processing">
+                                                <span>@T("Common.FileUploader.Processing")</span>
+                                                <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+                                            </span>
+                                            <ul class="qq-upload-list-selector qq-upload-list">
+                                                <li>
+                                                    <div class="qq-progress-bar-container-selector">
+                                                        <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                                                    </div>
+                                                    <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                                                    <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                                                    <span class="qq-upload-file-selector qq-upload-file"></span>
+                                                    <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                                                    <span class="qq-upload-size-selector qq-upload-size"></span>
+                                                    <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">@T("Common.FileUploader.Cancel")</a>
+                                                    <a class="qq-upload-retry-selector qq-upload-retry" href="#">@T("Common.FileUploader.Retry")</a>
+                                                    <a class="qq-upload-delete-selector qq-upload-delete" href="#">@T("Common.FileUploader.Delete")</a>
+                                                    <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </script>
+                                    <script type="text/javascript">
+                                        $(document).ready(function () {
+                                            $("#clientId1uploader").fineUploader({
+                                                request: {
+                                                    endpoint: '@(Url.Content("~/Plugins/Tickets/WidgetsTicketMyAccount/AsyncUploadLine"))'
+                                                },
+                                                template: "clientId1-qq-template",
+                                                multiple: false,
+                                            }).on("complete", function (event, id, name, responseJSON, xhr) {
+                                                AttachmentId = responseJSON.attachmentId;
+                                                $('#Ticket_TicketCustomerNewLine_AttachmentId').val(responseJSON.attachmentId);
+
+                                            });
+                                        });
+                                    </script>
+                                </div>
+
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <td class="head" colspan="2" style="text-align: center;">
+
+                            <input type="submit" name="btnAddLine" value="@T("Ticket.AddLine")" id="btnAddLineTicket" class="button-addline" />
+
+                        </td>
+                    </tr>
+                </table>
+            }
+        </div>
+
+
+    }
+
+
+</div>

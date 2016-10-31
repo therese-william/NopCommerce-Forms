@@ -1,0 +1,174 @@
+﻿@*  @model IList<Nop.Plugin.Widgets.Tickets.Models.StaffModel> *@
+
+@using Nop.Plugin.Widgets.Tickets.Models;
+
+
+@{
+    Layout = "~/Administration/Views/Shared/_AdminLayout.cshtml";
+    //page title
+    ViewBag.Title = T("Admin.Ticket.Staff").Text;    
+    
+}
+@Html.AntiForgeryToken()
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+        @T("Admin.Ticket.Staff")
+    </div>
+</div>
+
+<div id="staff-grid"></div>
+
+<script>
+                $(document).ready(function () {
+                    $("#staff-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("StaffList", "TicketStaff", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    contentType: "application/json"
+                                },
+                                create: {
+                                    url: "@Html.Raw(Url.Action("StaffInsert", "TicketStaff", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("StaffUpdate", "TicketStaff", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("StaffDelete", "TicketStaff", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                parameterMap: function(data, operation) {
+                                    if (operation != "read") {
+                                        return data;
+                                    } else {
+                                        //for some reasons only such "Filter" data be parsed
+                                        return JSON.stringify(data);
+                                    }
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Name: { editable: true, type: "string" },
+                                        StaffEmail: { editable: true, type: "string" },
+                                        Email: { editable: true, type: "string" },
+                                        EmailAccountId: { editable: true, type: "number" },
+                                        Id: { editable: false, type: "number" },
+                                        OrderById: { editable: true, type: "number" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+                        pageable: {
+                            refresh: true
+                        },
+                        sortable: false,
+                        toolbar: ["create"],
+                        edit: function (e) {
+                            if (e.model.isNew()) {
+                                if (allEmails.length > 0) {
+                                    e.model.EmailAccountId = allEmails[0].Id;
+                                }
+                            }
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+
+                        scrollable: false,
+                        columns: [{
+                            field: "Name",
+                            title: "@T("Admin.Tickets.Fields.Staff.Name")",
+                            width: 300,
+                        },{
+                            field: "StaffEmail",
+                            title: "@T("Admin.Tickets.Fields.Staff.StaffEmail")",
+                            width: 300,
+
+                        },{
+                            field: "EmailAccountId",
+                            title: "@T("admin.configuration.emailaccounts")",
+                            width: 150,
+                            editor: emailDropDownEditor,
+                            template: "#:Email#",
+                        },{
+                            field: "OrderById",
+                            title: "@T("admin.contentmanagement.polls.fields.displayorder")",
+                            width: 30,
+
+                        }, {
+                            command: [{
+                                name: "edit",
+                                text: "@T("Admin.Common.Edit")"
+                            }, {
+                                name: "destroy",
+                                text: "@T("Admin.Common.Delete")"
+                            }],
+                            width: 200,
+                            filterable: false
+                        }]
+                    });
+                });
+
+                //local datasource
+
+                var allEmails = [
+                                @{
+                                    var emailService = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Services.Messages.IEmailAccountService>();
+                                    var allEmails = emailService.GetAllEmailAccounts();
+                                }
+                                @foreach (var email in allEmails)
+                                {
+                                    <text>
+                                    {
+                                    Id: @(email.Id),
+                                    Name: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(email.DisplayName)))"
+                                    }
+                                </text>
+                                <text>,</text>
+                                }
+                                ];
+
+
+
+
+                function emailDropDownEditor(container, options) {
+                    $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:EmailAccountId"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: false,
+                            dataSource: allEmails
+                        });
+                }
+</script>
+
+
+

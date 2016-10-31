@@ -1,0 +1,31 @@
+﻿@model IList<Nop.Web.Models.Catalog.VendorModel>
+@using Mvc.GoogleMaps;
+<link href="~/Scripts/css/mapstyle.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.11.0.min.js"></script>
+<script src="~/Scripts/jquery.googlemaps.js"></script>
+@{
+    var map = new Mvc.GoogleMaps.Models.Map();    
+    map.editMode = false;
+    map.searchBox = false;
+    map.stylesPath = "";
+    map.zoom = 15;
+    if (Model.Count > 0) { 
+        map.center.latitude = Model[0].Latitude.Value;
+        map.center.longitude = Model[0].Longitude.Value;
+        if (Model.Count > 1) { 
+            map.singleLocation = false;
+            map.locations = new List<Mvc.GoogleMaps.Models.Location>();
+            foreach (Nop.Web.Models.Catalog.VendorModel v in Model) { 
+                var location = new Mvc.GoogleMaps.Models.Location();
+                location.Coordinates = new List<Mvc.GoogleMaps.Models.Coordinate>(1);
+                location.Coordinates[0].Latitude = v.Latitude.Value;
+                location.Coordinates[0].Longitude = v.Longitude.Value;
+                location.Message = v.Name;
+                map.locations.Add(location);
+            }
+        }
+    }
+}
+@Html.GoogleMapViewer("DealersMap", map);
+
+<div id="DealersMap"></div>

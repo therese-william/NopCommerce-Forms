@@ -1,0 +1,87 @@
+﻿@model ProductDetailsModel
+@using System.Globalization
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Infrastructure
+@using Nop.Services.Security
+@using Nop.Web.Models.Catalog
+@if (Model.IsRental)
+{
+    <div class="attributes rental-attributes">
+        @{
+            string startDateControlId = string.Format("rental_start_date_{0}", Model.Id);
+            string endDateControlId = string.Format("rental_end_date_{0}", Model.Id);
+            //currenly we support only this format
+            //java-script format
+            const string datePickerFormat = "mm/dd/yy";
+            //C# format for ToString method
+            const string datePickerFormat2 = "MM/dd/yyyy";
+            <div class="form maxWidth200">
+                <div class="form-group">
+                    <label class="">
+                        @T("Products.RentalStartDate"):
+                    </label>
+                    <span class="required">*</span>
+                    <input id="@(startDateControlId)" name="@(startDateControlId)" type="text" class="form-control" value="@(Model.RentalStartDate.HasValue ? Model.RentalStartDate.Value.ToString(datePickerFormat2, CultureInfo.InvariantCulture) : null)" />
+                    <script>
+                        $(document).ready(function () {
+                            $("#@(startDateControlId)").datepicker({ dateFormat: "@datePickerFormat", onSelect: onRentalDatePickerSelect });
+                        });
+                    </script>
+                </div>
+                <div class="form-group">
+                    <label class="text-prompt">
+                        @T("Products.RentalEndDate"):
+                    </label>
+                    <span class="required">*</span>
+                    <input id="@(endDateControlId)" name="@(endDateControlId)" type="text" class="form-control" value="@(Model.RentalEndDate.HasValue ? Model.RentalEndDate.Value.ToString(datePickerFormat2, CultureInfo.InvariantCulture) : null)" />
+                    <script>
+                        $(document).ready(function () {
+                            $("#@(endDateControlId)").datepicker({ dateFormat: "@datePickerFormat", onSelect: onRentalDatePickerSelect });
+                        });
+                    </script>
+                </div>
+            </div>
+        }
+
+        <script>
+            function onRentalDatePickerSelect() {
+                @{
+                    //dynamic price update support
+                    var hidePrices = !EngineContext.Current.Resolve<IPermissionService>().Authorize(StandardPermissionProvider.DisplayPrices);
+                    var dynamicPriceUpdate = EngineContext.Current.Resolve<CatalogSettings>().EnableDynamicPriceUpdate;
+                    var dynamicPriceUpdateAjax = EngineContext.Current.Resolve<CatalogSettings>().DynamicPriceUpdateAjax;
+                    var productId = Model.Id;
+                    var priceVarClass = string.Format("price-value-{0}", productId);
+                    //almost the same implementation is used in the \Views\Product\_ProductAttributes.cshtml file
+                    
+                    if (dynamicPriceUpdate && dynamicPriceUpdateAjax && !hidePrices)
+                    {
+                        <text>
+                        $.ajax({
+                            cache: false,
+                            url: '@Url.Action("ProductDetails_AttributeChange", "ShoppingCart", new {productId = productId})',
+                            data: $('#product-details-form').serialize(),
+                            type: 'post',
+                            success: function(data) {
+                                if (data.sku) {
+                                    $('#sku-@productId').text(data.sku);
+                                }
+                                if (data.mpn) {
+                                    $('#mpn-@productId').text(data.mpn);
+                                }
+                                if (data.gtin) {
+                                    $('#gtin-@productId').text(data.gtin);
+                                }
+                                if (data.price) {
+                                    $(".@(priceVarClass)").text(data.price);
+                                }
+                            }
+                        });
+                        
+                        </text>
+                    }
+                }
+            }
+        </script>
+    </div>
+}

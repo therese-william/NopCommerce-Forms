@@ -1,0 +1,50 @@
+﻿
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#eu-cookie-bar-notification').show();
+
+        $('#eu-cookie-ok').click(function () {
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.RouteUrl("EuCookieLawAccept")',
+                dataType: 'json',
+                success: function (data) {
+                    $("#euCookieModal").modal('hide');
+                },
+                failure: function () {
+                    alert('Cannot store value');
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Modal -->
+<div class="modal fade " id="euCookieModal" tabindex="-1" role="dialog" aria-labelledby="euCookieModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div>@T("EUCookieLaw.Description2")</div>
+                <div class="marginTop10 text-center">
+                    <button type="button" class="btn btn-sm btn-primary" id="eu-cookie-ok">@T("Common.OK")</button>
+                </div>
+                <div class="marginTop10 text-center">
+                    <a class="learn-more" href="@Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("privacyinfo") })">@T("EUCookieLaw.LearnMore")</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(window).load(function () {
+        $("#euCookieModal").modal({
+            backdrop: "static",
+            keyboard: false,
+            show: true
+        });
+    });
+
+</script>

@@ -1,0 +1,34 @@
+﻿@** Copyright 2015 Seven Spikes Ltd. All rights reserved. (http://www.nop-templates.com)
+* http://www.nop-templates.com/t/licensinginfo
+*@
+
+@using Nop.Core.Infrastructure
+@using SevenSpikes.Nop.Framework.MVCExtensions
+
+@model SevenSpikes.Nop.Plugins.MegaMenu.Models.MegaMenuManufacturersModels
+
+@if (Model.ManufacturersModels.Count > 0)
+{
+    var megaMenuSettings = EngineContext.Current.Resolve<SevenSpikes.Nop.Plugins.MegaMenu.Domain.MegaMenuSettings>();
+    <li>
+        <a href="@Url.RouteUrl("ManufacturerList")" title="@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.ManufacturersItemNameValue")">@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.ManufacturersItemNameValue")</a>
+        <div class="dropdown manufacturers fullWidth">
+            <div class="row-wrapper">
+                @(Html.DataTable<Nop.Web.Models.Catalog.ManufacturerModel>(Model.ManufacturersModels, megaMenuSettings.NumberOfManufacturersPerRow, "row", "box",
+                    @<text>
+                        <div class="title">
+                            <a class="manufacturer" href="@Url.RouteUrl("Manufacturer", new { SeName = item.SeName })" title="@item.Name"><strong>@item.Name</strong></a>
+                        </div><!-- title -->
+                        <ul>
+                            <li>
+                                <a class="manufacturer" href="@Url.RouteUrl("Manufacturer", new { SeName = item.SeName })" title="@item.Name">
+                                    <span><img class="lazy" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-original="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" title="@item.PictureModel.AlternateText" /></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </text>
+                ))
+            </div>
+        </div><!--dropdown-->
+    </li>
+}

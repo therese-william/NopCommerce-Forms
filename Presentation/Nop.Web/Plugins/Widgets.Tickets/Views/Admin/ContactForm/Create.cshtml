@@ -1,0 +1,21 @@
+﻿@model Nop.Plugin.Widgets.Tickets.Models.ContactAttributeModel
+@{
+    Layout = "~/Administration/Views/Shared/_AdminLayout.cshtml";
+
+    //page title
+    ViewBag.Title = T("Admin.Tickets.ContactAttributes.AddNew").Text;
+}
+@using (Html.BeginForm())
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+            @T("Admin.Tickets.ContactAttributes.AddNew") @Html.ActionLink("(" + T("Admin.Tickets.ContactAttributes.BackToList") + ")", "Configure", "Plugins/Tickets/ContactAttribute")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("~/Plugins/Widgets.Tickets/Views/Admin/ContactForm/_CreateOrUpdate.cshtml", Model)
+}

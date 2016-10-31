@@ -1,0 +1,37 @@
+﻿@model IList<ProductDetailsModel.TierPriceModel>
+@using Nop.Web.Models.Catalog;
+@{
+    //When there is just one tier (with  qty 1), there are no actual savings in the list.
+    var displayTierPrices = Model.Count > 0 && !(Model.Count == 1 && Model[0].Quantity <= 1);
+}
+@if (displayTierPrices)
+{
+    <div class="marginTop10">
+        <h5 style="display: none;"><strong> @T("Products.TierPrices")</strong></h5>
+            <table class="table table-bordered ">
+                <tr>
+                    <td>
+                        @T("Products.TierPrices.Quantity")
+                    </td>
+                    @foreach (var tierPrice in Model)
+                    {
+                        <td>
+                            @(tierPrice.Quantity)+
+                        </td>
+                    }
+                </tr>
+                <tr>
+                    <td>
+                        @T("Products.TierPrices.Price")
+                    </td>
+                    @foreach (var tierPrice in Model)
+                    {
+                        <td class="text-danger">
+                            @tierPrice.Price
+                        </td>
+                    }
+                </tr>
+            </table>
+        </div>
+
+}

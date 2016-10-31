@@ -1,0 +1,627 @@
+﻿@model TicketModel
+@using Nop.Plugin.Widgets.Tickets.Models;
+@using Nop.Web.Framework;
+
+@{
+    //page title
+    ViewBag.Title = T("Admin.Ticket.EditTicketDetails").Text;
+    Layout = "~/Administration/Views/Shared/_AdminLayout.cshtml";
+
+    Html.AddCssFileParts("~/Scripts/fineuploader/fineuploader-4.2.2.min.css");
+    Html.AddScriptParts("~/Scripts/fineuploader/jquery.fineuploader-4.2.2.min.js");
+}
+
+<script type="text/javascript">
+    var AttachmentId = 0;
+
+    $(document).ready(function() {
+        toggleChangeTicketStatus(false);
+        toggleChangeDepartment(false);
+        toggleChangePriority(false);
+        toggleChangeStaff(false);
+    });
+    function toggleChangeTicketStatus(editmode) {
+        if (editmode) {
+            $('#pnlChangeTicketStatus').show();
+            $('#btnChangeTicketStatus').hide();
+        } else {
+            $('#pnlChangeTicketStatus').hide();
+            $('#btnChangeTicketStatus').show();
+        }
+    }
+
+    function toggleChangeDepartment(editmode) {
+        if (editmode) {
+            $('#pnlChangeDepartment').show();
+            $('#btnChangeDepartment').hide();
+        } else {
+            $('#pnlChangeDepartment').hide();
+            $('#btnChangeDepartment').show();
+        }
+    }
+
+    function toggleChangePriority(editmode) {
+        if (editmode) {
+            $('#pnlChangePriority').show();
+            $('#btnChangePriority').hide();
+        } else {
+            $('#pnlChangePriority').hide();
+            $('#btnChangePriority').show();
+        }
+    }
+
+    function toggleChangeStaff(editmode) {
+        if (editmode) {
+            $('#pnlChangeStaff').show();
+            $('#btnChangeStaff').hide();
+        } else {
+            $('#pnlChangeStaff').hide();
+            $('#btnChangeStaff').show();
+        }
+    }
+
+</script>
+
+@using (Html.BeginRouteForm("Nop.Plugin.Widgets.Tickets.Edit", FormMethod.Post, new { id = "ticket-form" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="section-header">
+            <div class="title">
+                <img src="@Url.Content("~/Administration/Content/images/ico-sales.png")" alt="" />
+                @T("Admin.Ticket.EditTicketDetails") - @Model.Id  <a href="@Url.Content("~/Admin/Plugins/Tickets/TicketHeader/Configure")">@T("Admin.Tickets.BackToList")</a>   
+            </div>
+            <div class="options">
+                <input type="submit" name="btnDeleteTicket" value="@T("Admin.Common.Delete")" id="btnDeleteTicket" class="k-button" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />                
+
+        </div>
+    </div>
+    
+    @Html.ValidationSummary(false)
+
+
+        <div id="ticket-edit">
+        <ul>
+            <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+                @T("Admin.Ticket.Info")
+            </li>
+            <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+                @T("Admin.Ticket.Response")
+            </li>
+        </ul>
+
+            <div>
+                @TabInfo()
+            </div>
+            <div>
+                @TabOrderNotes()
+            </div>
+        </div>
+
+    
+     <script>
+        $(document).ready(function() {
+            $("#ticket-edit").kendoTabStrip({
+                animation:  {
+                    open: {
+                        effects: "fadeIn"
+                    }
+                },
+                select: tabstrip_on_tab_select
+            });
+        });
+    </script>
+
+    {
+        //custom tabs
+        var eventMessage = new Nop.Web.Framework.Events.AdminTabStripCreated(this.Html, "ticket-edit");
+        Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Services.Events.IEventPublisher>().Publish(eventMessage);
+        foreach (var eventBlock in eventMessage.BlocksToRender)
+        {
+            @eventBlock
+        }
+    }
+
+    @*save selected tab index*@
+    <input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+  
+}
+
+
+
+
+
+@helper TabInfo()
+{
+<table class="adminContent">
+    
+    <tr>
+        <td class="adminTitle">
+            <strong>
+                @Html.NopLabelFor(model => model.TicketStatus):
+            </strong>
+        </td>
+        <td class="adminData">
+            <strong>
+                @Model.TicketStatus
+            </strong>&nbsp;
+            <input type="submit" name="btnChangeTicketStatus" value="@T("Admin.Ticket.Fields.TicketStatus.Change")" onclick="toggleChangeTicketStatus(true);return false;" id="btnChangeTicketStatus" class="adminButton" />
+            <div id="pnlChangeTicketStatus">
+                <em>@T("Admin.Ticket.Fields.TicketStatus.Change.ForAdvancedUsers")</em>
+                <br />
+                @Html.DropDownListFor(model => model.TicketStatusId, ((Nop.Plugin.Widgets.Tickets.Domain.TicketStatus)Model.TicketStatusId).ToSelectList())
+                <input type="submit" name="btnSaveTicketStatus" value="@T("Admin.Common.Save")" id="btnSaveTicketStatus" class="adminButton" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />
+                <input type="submit" name="btnCancelTicketStatus" value="@T("Admin.Common.Cancel")" onclick="toggleChangeTicketStatus(false);return false;" id="btnCancelTicketStatus" class="adminButton" />
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="adminTitle">
+            <strong>
+                @Html.NopLabelFor(model => model.Deparment):
+            </strong>
+        </td>
+        <td class="adminData">
+            <strong>
+                @Model.Deparment
+            </strong>&nbsp;
+            <input type="submit" name="btnChangeDepartment" value="@T("Admin.Ticket.Fields.Deparment.Change")" onclick="toggleChangeDepartment(true); return false;" id="btnChangeDeparment" class="adminButton" />
+            <div id="pnlChangeDepartment">
+                <em>@T("Admin.Ticket.Fields.Deparment.Change.ForAdvancedUsers")</em>
+                <br />
+                @Html.DropDownListFor(model => model.DeparmentId, Model.AvailableDepartments)
+                <input type="submit" name="btnSaveDepartment" value="@T("Admin.Common.Save")" id="btnSaveDeparment" class="adminButton" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />
+                <input type="submit" name="btnCancelDeparment" value="@T("Admin.Common.Cancel")" onclick="toggleChangeDepartment(false); return false;" id="btnCancelDeparment" class="adminButton" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            <strong>
+                @Html.NopLabelFor(model => model.Priority):
+            </strong>
+        </td>
+        <td class="adminData">
+            <strong>
+                @Model.Priority
+            </strong>&nbsp;
+            <input type="submit" name="btnChangePriority" value="@T("Admin.Ticket.Fields.Priority.Change")" onclick="toggleChangePriority(true); return false;" id="btnChangePriority" class="adminButton" />
+            <div id="pnlChangePriority">
+                <em>@T("Admin.Ticket.Fields.Priority.Change.ForAdvancedUsers")</em>
+                <br />
+                @Html.DropDownListFor(model => model.PriorityId, Model.AvailablePriority)
+                <input type="submit" name="btnSavePriority" value="@T("Admin.Common.Save")" id="btnSavePriority" class="adminButton" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />
+                <input type="submit" name="btnCancelPriority" value="@T("Admin.Common.Cancel")" onclick="toggleChangePriority(false); return false;" id="btnCancelPriority" class="adminButton" />
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="adminTitle">
+            <strong>
+                @Html.NopLabelFor(model => model.Staff):
+            </strong>
+        </td>
+        <td class="adminData">
+            <strong>
+                @Model.Staff
+            </strong>&nbsp;
+            <input type="submit" name="btnChangeStaff" value="@T("Admin.Ticket.Fields.Staff.Change")" on onclick="toggleChangeStaff(true); return false;" id="btnChangeStaff" class="adminButton" />
+            <div id="pnlChangeStaff">
+                <em>@T("Admin.Ticket.Fields.Staff.Change.ForAdvancedUsers")</em>
+                <br />
+                @Html.DropDownListFor(model => model.StaffId, Model.AvailableStaff)
+                <input type="submit" name="btnSaveStaff" value="@T("Admin.Common.Save")" id="btnSaveStaff" class="adminButton" onclick="return confirm('@T("Admin.Common.AreYouSure")');" />
+                <input type="submit" name="btnCancelStaff" value="@T("Admin.Common.Cancel")" onclick="toggleChangeStaff(false); return false;" id="btnCancelStaff" class="adminButton" />
+            </div>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.Id):
+        </td>
+        <td class="adminData">
+            @Model.Id
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TicketGuid):
+        </td>
+        <td class="adminData">
+            @Model.TicketGuid
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.StoreName):
+        </td>
+        <td class="adminData">
+            @Model.StoreName
+        </td>
+    </tr>
+    <tr class="adminSeparator">
+        <td colspan="2">
+            <hr />
+        </td>
+    </tr>
+    @if(Model.CustomerId != 0)
+    {
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.CustomerId):
+            </td>
+            <td class="adminData">
+                @Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { })
+            </td>
+        </tr>
+    }
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.CustomerEmail):
+        </td>
+        <td class="adminData">
+            @Model.CustomerEmail
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.Name):
+        </td>
+        <td class="adminData">
+            @Model.Name
+        </td>
+    </tr>
+    <tr class="adminSeparator">
+        <td colspan="2">
+            <hr />
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.Subject):
+        </td>
+        <td class="adminData">
+            @Model.Subject
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.Body):
+        </td>
+        <td class="adminData">
+            @Html.Raw(@Model.Body)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.AttributeTXT):
+        </td>
+        <td class="adminData">
+            @Html.Raw(@Model.AttributeTXT)
+        </td>
+    </tr>
+
+    @if(Model.AttachmentId != 0)
+    {
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.Attachment):
+        </td>
+        <td class="adminData">
+            @Html.RouteLink("Download File", "Nop.Plugin.Widgets.Tickets.AdminDownloadFile", new { downloadGuid = Model.Attachment })
+        </td>
+    </tr>    
+    }
+    @if(Model.OrderId!=0)
+    {        
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.OrderId):
+        </td>
+        <td class="adminData">
+            @Html.ActionLink("Order", "Edit","Order", new { Id = Model.OrderId }, null)
+        </td>
+    </tr>    
+    }
+    @if (Model.ProductId != 0)
+    {
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ProductId):
+            </td>
+            <td class="adminData">
+               <text>@Model.ProductName</text>
+               @Html.ActionLink("Product", "Edit", "Product", new { Id = Model.ProductId }, null)
+            </td>
+        </tr>
+    }
+</table>
+
+        @* @Html.Partial("_OrderDetails.Info", Model) *@
+}
+
+@helper TabOrderNotes()
+{
+    var _localization = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Services.Localization.ILocalizationService>();
+    
+    var localstring = _localization.GetLocaleStringResourceByName("Nop.Plugin.Widgets.Tickets.Line.AddSuccessLine");
+    string stringResponseAdd = "Adding line";
+    if (localstring != null)
+    { 
+        stringResponseAdd = localstring.ResourceValue;
+    }
+    
+    <table class="adminContent">
+    <tr>
+        <td>
+
+            <div id="ticketlines-grid"></div>
+
+            <script>
+    $(document).ready(function () {
+        $("#ticketlines-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("TicketLines", "TicketHeader", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets" }, { "area", "" }, { "TicketId", Model.Id } }))",
+                        type: "POST",
+                        dataType: "json"
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("TicketLineDelete", "TicketHeader", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets" }, { "area", "" } }))",
+                        type: "POST",
+                        dataType: "json"
+                    },
+                    parameterMap: function(data, operation) {
+                        if (operation != "read") {
+                            return data;
+                        } else {
+                            //for some reasons only such "Filter" data be parsed
+                            return JSON.stringify(data);
+                        }
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Created:{ type: "date" },
+                            Attachment: {type: "string"},
+                            UserSign: {type:"string"}
+                        }
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Created",
+                title: "@T("Admin.Ticket.Line.Fields.Created")",
+                width: 120,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "Body",
+                title: "@T("Admin.Ticket.Line.Fields.Note")",
+                width: 300,
+                encoded: false
+            }, {
+                field: "DisplayToCustomer",
+                title: "@T("Admin.Ticket.Line.Fields.DisplayToCustomer")",
+                width: 50,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=DisplayToCustomer#.gif" />'
+            },
+            {
+                field: "Attachment",
+                title: "@T("Admin.Ticket.Line.Fields.Attachment")",
+                width: 50,
+                template: function (dataItem) {
+                    if (dataItem.AttachmentId == '0') {
+                        return "";
+                    } else {
+                        return '<a href="@Url.Content("~/Admin/Plugins/Tickets/TicketHeader/DownloadFile?downloadGuid=")'+dataItem.Attachment+'">Download</a>'
+                    }
+                }
+            },
+            {
+                field: "UserSign",
+                title: "@T("Admin.Ticket.Line.Fields.User")",
+                width: 100,
+            },
+            {
+                command: [{
+                    name: "destroy",
+                    text: "@T("Admin.Common.Delete")"
+                }],
+                width: 100,
+                filterable: false
+            }
+            ]
+        });
+    });
+</script>
+        </td>
+    </tr>
+</table>
+    
+
+    
+<p>
+    <strong>
+        @T("Admin.Ticket.TicketLine.AddTitle")
+    </strong>
+</p>
+
+    <table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.AddTicketLineMessage)
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.AddTicketLineMessage, "RichEditor")
+            @Html.ValidationMessageFor(model => model.AddTicketLineMessage)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.AddTicketNoteDisplayToCustomer)
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.AddTicketNoteDisplayToCustomer)
+            @Html.ValidationMessageFor(model => model.AddTicketNoteDisplayToCustomer)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div>
+                <div id="clientId1">
+                    <noscript>
+                        <p>
+                            Please enable JavaScript to use file uploader.
+                        </p>
+                    </noscript>
+                </div>
+
+
+                <script type="text/template" id="clientId1-qq-template">
+                    <div class="qq-uploader-selector qq-uploader">
+                        <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                            <span>@T("Common.FileUploader.DropFiles")</span>
+                        </div>
+                        <div class="qq-upload-button-selector qq-upload-button">
+                            <div>@T("Common.FileUploader.Upload")</div>
+                        </div>
+                        <span class="qq-drop-processing-selector qq-drop-processing">
+                            <span>@T("Common.FileUploader.Processing")</span>
+                            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+                        </span>
+                        <ul class="qq-upload-list-selector qq-upload-list">
+                            <li>
+                                <div class="qq-progress-bar-container-selector">
+                                    <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                                </div>
+                                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                                <span class="qq-upload-file-selector qq-upload-file"></span>
+                                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                                <span class="qq-upload-size-selector qq-upload-size"></span>
+                                <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">@T("Common.FileUploader.Cancel")</a>
+                                <a class="qq-upload-retry-selector qq-upload-retry" href="#">@T("Common.FileUploader.Retry")</a>
+                                <a class="qq-upload-delete-selector qq-upload-delete" href="#">@T("Common.FileUploader.Delete")</a>
+                                <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </script>
+
+
+
+
+                <script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#clientId1").fineUploader({
+            request: {
+                endpoint: '@(Url.Content("~/Admin/Plugins/Tickets/TicketHeader/AsyncUploadLine"))'
+            },
+            template: "clientId1-qq-template",
+            multiple: false
+        }).on("complete", function (event, id, name, responseJSON, xhr) {
+
+            AttachmentId = responseJSON.attachmentId;
+        });
+
+
+        $("#clientId1remove").click(function(e){
+            $("#clientId1downloadurl").html("");
+            $("#clientId1value input").val(0);
+            $(this).hide();
+        });
+    });
+
+</script>
+
+
+
+            </div>
+
+
+        </td>
+        <td>
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+        <td colspan="2" align="left">
+            <input type="button" id="addTicketNote" class="k-button" value="@T("Admin.Ticket.TicketLine.AddButton")" />
+        </td>
+    </tr>
+</table>
+
+    
+    
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#addTicketNote').click(function () {
+            var lineNoteMessage =  tinyMCE.get('AddTicketLineMessage').getContent()
+
+            var ticketNoteDisplayToCustomer = $("#@Html.FieldIdFor(model => model.AddTicketNoteDisplayToCustomer)").is(':checked');
+            $('#addTicketNote').attr('disabled', true);
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: '@(Url.Content("~/Admin/Plugins/Tickets/TicketHeader/TicketAddLine"))',
+                data: { "DisplayToCustomer": ticketNoteDisplayToCustomer, "message": lineNoteMessage, "TicketId": @Model.Id, "attachemntId": AttachmentId },
+                success: function (data) {
+                    $('#addTicketNote').attr('disabled', false);
+                    if(data.Result){
+                        var grid = $('#ticketlines-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                        AttachmentId = 0;
+                        tinyMCE.get('AddTicketLineMessage').setContent('');
+                        alert('@(stringResponseAdd)');
+                    }
+                    else
+                    {
+                        alert(data.message);
+                    }
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert('Failed to add line note.');
+                    $('#addTicketNote').attr('disabled', false);
+                }
+            });
+        });
+    });
+</script>    
+     
+}

@@ -1,0 +1,86 @@
+﻿@model CustomerBackInStockSubscriptionsModel
+@using Nop.Web.Models.Catalog
+@using Nop.Web.Models.Customer
+@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+
+    Html.AddTitleParts(T("PageTitle.BackInStockSubscriptions").Text);
+}
+@section left
+{
+    @Html.Action("CustomerNavigation", "Customer", new { selectedTabId = CustomerNavigationEnum.BackInStockSubscriptions })
+}
+<div class="page-header page-header-custom">
+    <h3>@T("Account.MyAccount") - @T("Account.BackInStockSubscriptions")</h3>
+</div>
+<div class="page-body">
+    @if (Model.Subscriptions.Count > 0)
+    {
+        <div>
+            @T("Account.BackInStockSubscriptions.Description")
+        </div>
+            <script type="text/javascript">
+                $(document).ready(function () {
+
+                    $('#selectall').click(function () {
+                        $('.subscription-list .rowcheckbox').attr('checked', $(this).is(':checked')).change();
+                    });
+
+                    $('.subscription-list .rowcheckbox').on('change', function (e) {
+                        var numChkBoxes = $('.subscription-list .rowcheckbox').length;
+                        var numChkBoxesChecked = $('.subscription-list .rowcheckbox:checked').length;
+                        $('#selectall').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+                    });
+                });
+            </script>
+        using (Html.BeginRouteForm("CustomerBackInStockSubscriptions", FormMethod.Post))
+        {
+                <table class="table table-bordered table-responsive table-striped">
+                    <colgroup>
+                        <col width="1" />
+                        <col />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th class="select-boxes">
+                                <input type="checkbox" id="selectall" />
+                            </th>
+                            <th class="product">
+                                @T("Account.BackInStockSubscriptions.ProductColumn")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Subscriptions.Count; i++)
+                        {
+                            var item = Model.Subscriptions[i];
+                            <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                <td class="select-boxes">
+                                    <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" />
+                                </td>
+                                <td class="product">
+                                    @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                var pager = Html.Pager(Model.PagerModel);
+                if (!MvcHtmlString.IsNullOrEmpty(pager))
+                {
+                    <div class="pager">
+                        @pager
+                    </div>
+                }
+                <div class="">
+                    <input type="submit" value="@T("Account.BackInStockSubscriptions.DeleteSelected")" class="btn btn-primary" />
+                </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>
+                            @T("Account.BackInStockSubscriptions.NoSubscriptions")
+                        </div>
+                    }
+</div>

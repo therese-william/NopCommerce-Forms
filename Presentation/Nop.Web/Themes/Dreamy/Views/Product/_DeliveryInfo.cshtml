@@ -1,0 +1,18 @@
+﻿@model ProductDetailsModel
+@using Nop.Web.Models.Catalog;
+@if ((Model.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !String.IsNullOrWhiteSpace(Model.DeliveryDate))
+{
+    <div class="marginTop10">
+        @if (Model.FreeShippingNotificationEnabled && Model.IsFreeShipping)
+        {
+            <div><i class="fa fa-truck fa-2x"></i> <strong>@T("Products.FreeShipping")</strong> </div>
+        }
+        @if (!String.IsNullOrWhiteSpace(Model.DeliveryDate))
+        {
+            <div>
+                <label>@T("Products.DeliveryDate"):</label>
+                @Model.DeliveryDate
+            </div>
+        }
+    </div>
+}

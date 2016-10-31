@@ -1,0 +1,37 @@
+﻿@model VendorNavigationModel
+@using Nop.Web.Models.Catalog;
+@if (Model.Vendors.Count > 0)
+{
+    <nav class="navbar navbar-default panel panel-default" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#vendors-sidebar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand visible-xs" href="#">@T("Vendors")</a>
+        </div>
+        <div class="panel-heading hidden-xs">
+            <h3 class="panel-title">@T("Vendors")</h3>
+        </div>
+        <div class="navbar-collapse collapse" id="vendors-sidebar">
+            <div class="panel-body">
+                <ul class="list-unstyled">
+                    @foreach (var vendor in Model.Vendors)
+                {
+                        <li>
+                            <a href="@Url.RouteUrl("Vendor", new { SeName = vendor.SeName })">@vendor.Name</a>
+                        </li>
+                    }
+                </ul>
+                @if (Model.TotalVendors > Model.Vendors.Count)
+                {
+                    <small class="view-all pull-right">
+                        <a href="@Url.RouteUrl("VendorList")">@T("Vendors.ViewAll")</a>
+                    </small>
+                }
+            </div>
+        </div>
+    </nav>
+}

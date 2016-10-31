@@ -1,0 +1,95 @@
+﻿@model BlogPostListModel
+@using Nop.Web.Models.Blogs;
+@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Blog").Text);
+}
+@section left {
+    @Html.Action("BlogMonths", "Blog")
+    @Html.Action("BlogTags", "Blog")
+}
+<div class="page-header page-header-custom">
+    <a href="@Url.RouteUrl("BlogRSS", new { languageId = Model.WorkingLanguageId })" class="pull-right tooltipOn" title="@T("Blog.RSS.Hint")">
+        <i class="fa fa-rss-square fa-2x colorRss"></i>
+    </a>
+    <h3>
+        @if (String.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
+            {
+                if (Model.PagingFilteringContext.GetParsedMonth().HasValue)
+                {
+                @String.Format(T("Blog.FilteredByMonth").Text, Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
+            }
+            else
+            {
+                @T("Blog")
+            }
+        }
+        else
+        {
+            @String.Format(T("Blog.TaggedWith").Text, Model.PagingFilteringContext.Tag)
+        }
+    </h3>
+</div>
+<div class="page-body">
+    @Html.Widget("bloglist_page_before_posts")
+    @foreach (var item in Model.BlogPosts)
+            {
+        <div class="row">
+            <div class="col-md-12">
+                <h4><a class="post-title" href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">@item.Title</a></h4>
+                <small class="text-muted"><i>@item.CreatedOn.ToString("D")</i></small>
+                <p class="marginTop10 text-justify">
+                    @Html.Raw(!String.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8 pull-right">
+                @if (item.Tags.Count > 0)
+                {
+                    <label>@T("Blog.Tags"):</label>
+                            <ul class="list-inline">
+                                @for (int i = 0; i < item.Tags.Count; i++)
+                                {
+                                    var tag = item.Tags[i];
+                                    <li><a href="@Url.RouteUrl("BlogByTag", new { tag = tag })">@tag</a></li>
+                                    if (i != item.Tags.Count - 1)
+                                    {
+                                        <li>-</li>
+                                    }
+                                }
+                            </ul>
+                }
+            </div>
+            <div class="col-sm-4">
+                <div class="buttons">
+                    @if (item.AllowComments)
+                    {
+                        <a href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })" class="read-comments">@string.Format(T("Blog.CommentsLink").Text, item.NumberOfComments)</a>
+                    }
+                    <div class="marginTop20 marginBottom30">
+                        <a href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })" class="btn btn-primary">@T("Blog.MoreInfo")</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+                <div class="post">
+
+
+                    @Html.Widget("bloglist_page_inside_post", item.Id)
+                </div>
+    }
+</div>
+@{
+    var pager = Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber");
+}
+@if (!pager.IsEmpty())
+{
+    <div class="pager">
+        @pager
+    </div>
+}
+@Html.Widget("bloglist_page_after_posts")

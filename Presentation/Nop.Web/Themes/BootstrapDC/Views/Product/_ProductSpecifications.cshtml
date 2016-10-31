@@ -1,0 +1,26 @@
+﻿@model IList<ProductSpecificationModel>
+@using Nop.Web.Models.Catalog;
+@if (Model.Count > 0)
+{
+        <h4><strong>@T("Products.Specs")</strong></h4>
+        <table class="table table-bordered ">
+            <colgroup>
+                <col width="25%" />
+                <col />
+            </colgroup>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var item = Model[i];
+                    <tr>
+                        <td>
+                            @item.SpecificationAttributeName
+                        </td>
+                        <td>
+                            @Html.Raw(item.ValueRaw)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+         </table>
+}

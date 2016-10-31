@@ -1,0 +1,31 @@
+﻿@model CheckoutCompletedModel
+@using Nop.Web.Models.Checkout;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Checkout").Text);
+}
+    @if (!Model.OnePageCheckoutEnabled)
+    {
+        @Html.Action("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Complete })
+    }
+    <div class="page-header page-header-custom">
+        <h3 class="text-center">@T("Checkout.ThankYou")</h3>
+    </div>
+    <div class="page-body checkout-data minHeight250">
+        @Html.Widget("checkout_completed_top")
+            <h4 class="text-center">@T("Checkout.YourOrderHasBeenSuccessfullyProcessed")</h4>
+            <div class="text-center">
+                <div>
+                    <strong>@T("Checkout.OrderNumber"): @Model.OrderId</strong>
+                </div>
+                <div>
+                    <a href="@Url.RouteUrl("OrderDetails", new { orderID = Model.OrderId })">@T("Checkout.PlacedOrderDetails")</a>
+                </div>
+            </div>
+            <div class="text-center marginTop20">
+                <input type="button" value="@T("Checkout.ThankYou.Continue")" class="btn btn-primary" onclick="setLocation('@Url.RouteUrl("HomePage")')" />
+            </div>
+        @Html.Widget("checkout_completed_bottom")
+    </div>

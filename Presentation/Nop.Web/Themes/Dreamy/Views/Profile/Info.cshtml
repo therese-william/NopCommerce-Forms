@@ -1,0 +1,56 @@
+﻿@model ProfileInfoModel
+@using Nop.Web.Models.Profile;
+<div class="row marginTop20 minHeight250 padding20">
+    @if (!String.IsNullOrEmpty(Model.AvatarUrl))
+    {
+        <div class="col-xs-12 col-sm-2">
+            <div>
+                <img src="@(Model.AvatarUrl)" class="img-rounded img-responsive" alt="Avatar" />
+            </div>
+        </div>         
+    }
+    <div class="col-xs-12 col-sm-10">
+        <div class="title">
+            <h3>@T("Profile.Statistics")</h3>
+        </div>
+        @Html.Widget("profile_page_info_userdetails", Model.CustomerProfileId)
+        <ul class="list-unstyled">
+            @if (Model.LocationEnabled)
+            {
+                <li class="location">
+                    <label>@T("Profile.Country"):</label>
+                    <span>@Model.Location</span>
+                </li>
+            }
+            @if (Model.TotalPostsEnabled)
+            {
+                <li>
+                    <label>@T("Profile.TotalPosts"):</label>
+                    <span>@Model.TotalPosts</span>
+                </li>          
+            }
+            @if (Model.JoinDateEnabled)
+            {        
+                <li>
+                    <label>@T("Profile.JoinDate"):</label>
+                    <span>@Model.JoinDate</span>
+                </li>
+            }
+            @if (Model.DateOfBirthEnabled)
+            {
+                <li>
+                    <label>@T("Profile.DateOfBirth"):</label>
+                    <span>@Model.DateOfBirth</span>
+                </li>
+            }
+        </ul>
+        @Html.Widget("profile_page_info_userstats", Model.CustomerProfileId)
+        @if (Model.PMEnabled)
+            {
+            <div class="marginTop10">
+                @Html.RouteLink(T("Forum.PrivateMessages.PM").Text, "SendPM", new { toCustomerId = Model.CustomerProfileId }, new { @class = "btn btn-default" })
+            </div>
+        }
+    </div>
+   
+</div>

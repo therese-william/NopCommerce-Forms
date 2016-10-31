@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "~/Administration/Views/Shared/_AdminLayout.cshtml";
+    //page title
+    ViewBag.Title = T("Admin.Tickets.ContactAttributes").Text;
+
+}
+@Html.AntiForgeryToken()
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+        @T("Admin.Tickets.ContactAttributes")
+    </div>
+    <div class="options">
+        <a href="~/Admin/Plugins/Tickets/ContactAttribute/Create" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="contactattributes-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#contactattributes-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("List", "ContactAttribute", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("Delete", "ContactAttribute", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } })) ",
+                                type: "POST",
+                                dataType: "json"
+                            }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id"
+                                }
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "Name",
+                            title: "@T("Admin.Tickets.ContactAttributes.Fields.Name")"
+                        }, {
+                            field: "AttributeControlTypeName",
+                            title: "@T("Admin.Tickets.ContactAttributes.Fields.AttributeControlType")",
+                            width: 200
+                        },{
+                            field: "IsRequired",
+                            title: "@T("Admin.Tickets.ContactAttributes.Fields.IsRequired")",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=IsRequired#.gif" />'
+                        }, {
+                            field: "DisplayOrder",
+                            title: "@T("Admin.Tickets.ContactAttributes.Fields.DisplayOrder")",
+                            width: 100
+                        }, {
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="Edit/#=Id#">@T("Admin.Common.Edit")</a>'
+                        }, {
+                            command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
+                            title: "@T("Admin.Common.Delete")",
+                            width: 100
+                        }]
+                    });
+                });
+            </script>
+        </td>
+    </tr>
+</table>

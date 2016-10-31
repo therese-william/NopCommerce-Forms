@@ -1,0 +1,98 @@
+﻿@model CustomerForumSubscriptionsModel
+@using Nop.Web.Models.Boards;
+@using Nop.Web.Models.Customer;
+@{    
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+
+    Html.AddTitleParts(T("PageTitle.ForumSubscriptions").Text);
+}
+@section left
+{
+    @Html.Action("CustomerNavigation", "Customer", new { selectedTabId = CustomerNavigationEnum.ForumSubscriptions })
+}
+    <div class="page-header page-header-custom">
+        <h3>@T("Account.MyAccount") - @T("Account.ForumSubscriptions")</h3>
+    </div>
+    <div class="page-body">
+        @if (Model.ForumSubscriptions.Count > 0)
+        {
+            <div class="marginBottom10">
+                @T("Account.ForumSubscriptions.Description")
+            </div>
+            <script type="text/javascript">
+                $(document).ready(function () {
+
+                    $('#selectall').click(function () {
+                        $('.subscription-list .rowcheckbox').attr('checked', $(this).is(':checked')).change();
+                    });
+
+                    $('.subscription-list .rowcheckbox').on('change', function (e) {
+                        var numChkBoxes = $('.subscription-list .rowcheckbox').length;
+                        var numChkBoxesChecked = $('.subscription-list .rowcheckbox:checked').length;
+                        $('#selectall').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+                    });
+                });
+            </script>
+            using (Html.BeginRouteForm("CustomerForumSubscriptions", FormMethod.Post))
+            {
+            <div class="subscription-list">
+                    <table class="table table-bordered table-responsive">
+                        <colgroup>
+                            <col width="1" />
+                            <col />
+                        </colgroup>
+                        <thead>
+                            <tr class="active">
+                                <th class="select-boxes">
+                                    <input type="checkbox" id="selectall" />
+                                </th>
+                                <th>
+                                    @T("Account.ForumSubscriptions.InfoColumn")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.ForumSubscriptions.Count; i++)
+                            {
+                                var item = Model.ForumSubscriptions[i];
+                                <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                    <td class="select-boxes">
+                                        <input type="checkbox" name="fs@(item.Id)" class="rowcheckbox" />
+                                    </td>
+                                    <td>
+                                        @if (item.TopicSubscription)
+                                        {
+                                            @Html.RouteLink(item.Title, "TopicSlug", new { Id = item.ForumTopicId, slug = item.Slug })
+                                        }
+                                        else
+                                        {
+                                            @Html.RouteLink(item.Title, "ForumSlug", new { Id = item.ForumId, slug = item.Slug })
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                @{
+                    var pager = Html.Pager(Model.PagerModel);
+                }
+                @if (!MvcHtmlString.IsNullOrEmpty(pager))
+                {
+                    <div class="pager">
+                        @pager
+                    </div>
+                }
+                <div class="buttons">
+                    <input type="submit" value="@T("Account.ForumSubscriptions.DeleteSelected")" class="btn btn-primary" />
+                </div>
+            </div>
+            }
+        }
+        else
+        {
+            <div class="no-data">
+                @T("Account.ForumSubscriptions.NoSubscriptions")
+            </div>
+        }
+    </div>
+
