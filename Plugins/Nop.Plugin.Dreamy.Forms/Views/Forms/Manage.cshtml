@@ -1,0 +1,130 @@
+﻿@model Nop.Plugin.Dreamy.Forms.Models.FormListModel
+@{
+    var defaultGridPageSize = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("Plugins.Dreamy.Forms").Text;
+    Layout = "_AdminLayout.cshtml";
+}
+@Html.AntiForgeryToken()
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+        @T("Plugins.Dreamy.Forms")
+    </div>
+    <div class="options">
+        <a href="@Url.Action("Create","Forms", new { Area = "admin" })" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.LabelFor(model => model.SearchFormName):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.SearchFormName)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="search-forms" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="forms-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#forms-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("List", "Forms", new { Area = "admin" }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)]
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "FormName",
+                            title: "@T("Plugins.Dreamy.Forms.Fields.FormName")"
+                        }, {
+                            field: "Published",
+                            title: "@T("Plugins.Dreamy.Forms.Fields.Published")",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=Published#.gif" />'
+                        }, {
+                            field: "AdminEmails",
+                            title: "@T("Plugins.Dreamy.Forms.Fields.AdminEmails")",
+                            width: 100
+                        }, {
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="Edit/#=Id#">@T("Admin.Common.Edit")</a>'
+                        }]
+                    });
+                });
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#search-forms').click(function () {
+                        //search
+                        var grid = $('#forms-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        return false;
+                    });
+
+                    $("#SearchFormName").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#search-forms").click();
+                            return false;
+                        }
+                    });
+                });
+
+                function additionalData() {
+                    var data = {
+                        SearchFormName: $('#SearchFormName').val()
+                    };
+                    addAntiForgeryToken(data);
+                    return data;
+                }
+            </script>
+        </td>
+    </tr>
+</table>
