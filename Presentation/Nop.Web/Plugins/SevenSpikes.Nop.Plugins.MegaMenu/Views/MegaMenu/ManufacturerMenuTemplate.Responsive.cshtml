@@ -1,0 +1,45 @@
+﻿@** Copyright 2015 Seven Spikes Ltd. All rights reserved. (http://www.nop-templates.com)
+* http://www.nop-templates.com/t/licensinginfo
+*@
+
+@using Nop.Core.Infrastructure
+@using SevenSpikes.Nop.Framework.MVCExtensions
+
+@model SevenSpikes.Nop.Plugins.MegaMenu.Models.MegaMenuManufacturersModels
+
+@if (Model.ManufacturersModels.Count > 0)
+{
+    var megaMenuSettings = EngineContext.Current.Resolve<SevenSpikes.Nop.Plugins.MegaMenu.Domain.MegaMenuSettings>();
+    <li>
+        @if (Model.ManufacturersModels.Count > 0)
+        {
+            <a href="@Url.RouteUrl("ManufacturerList")" class="with-subcategories" title="@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.ManufacturersItemNameValue")">@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.ManufacturersItemNameValue")</a>
+            <div class="plus-button"></div>
+            <div class="sublist-wrap">
+                <ul class="sublist">
+                    <li class="back-button">
+                        <span>@T("SevenSpikes.MegaMenu.ResponsiveBackButton")</span>
+                    </li>
+                    @{
+            foreach (var manufacturer in Model.ManufacturersModels)
+            {
+                        <li>
+                            <a href="@Url.RouteUrl("Manufacturer", new { SeName = manufacturer.SeName })" title="@manufacturer.Name">@manufacturer.Name</a>
+                        </li>
+            }
+            if (Model.ManufacturersModels.Count == megaMenuSettings.NumberOfManufacturers)
+            {
+                        <li>
+                            <a class="view-all" href="@Url.RouteUrl("ManufacturerList")" title="@T("SevenSpikes.MegaMenu.ViewAllManufacturers")">@T("SevenSpikes.MegaMenu.ViewAllManufacturers")</a>
+                        </li>
+            }
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <a href="@Url.RouteUrl("ManufacturerList")" title="@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.ManufacturersItemNameValue")">@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.ManufacturersItemNameValue")</a>
+        }
+    </li>
+}

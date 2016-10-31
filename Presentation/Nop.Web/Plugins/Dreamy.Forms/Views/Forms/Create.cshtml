@@ -1,0 +1,21 @@
+﻿@model Nop.Plugin.Dreamy.Forms.Models.FormModel
+@{
+    //page title
+    ViewBag.Title = T("Plugins.Dreamy.Forms.AddNew").Text;
+    Layout = "_AdminLayout.cshtml";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form-form" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+            @T("Plugins.Dreamy.Forms.AddNew") @Html.ActionLink("(" + T("Plugins.Dreamy.Forms.BackToList") + ")", "Manage")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("_CreateOrUpdate", Model)
+}

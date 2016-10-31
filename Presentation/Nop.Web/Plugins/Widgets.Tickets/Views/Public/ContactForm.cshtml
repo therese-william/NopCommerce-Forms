@@ -1,0 +1,97 @@
+﻿@model Nop.Plugin.Widgets.Tickets.Models.ContactFormModel
+@using Nop.Web.Framework.UI;
+@using System.Web.Mvc;
+@using Nop.Web.Models.Common;
+@using Nop.Core
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Security.Captcha;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+    Html.AppendCssFileParts("~/Plugins/Widgets.Tickets/Content/styles.css");
+
+    //title
+    Html.AddTitleParts(T("PageTitle.ContactUs").Text);
+}
+<div class="page contact-page">
+    <div class="page-title">
+        <h1>@T("PageTitle.ContactUs")</h1>
+    </div>
+    <div class="page-body">
+        @Html.Action("TopicBlock", "Topic", new { systemName = "ContactUs" })
+        @Html.Widget("contactus_top")
+        @if (Model.SuccessfullySent)
+        {
+            <div class="result">
+                @Model.Result
+            </div>
+        }
+        else
+        {
+            using (Html.BeginForm())
+            {
+                <div class="message-error">
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="fieldset">
+                    <div class="form-fields">
+
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.DepartmentId)
+                            @Html.DropDownListFor(model => model.DepartmentId, Model.AvailableDepartments)
+                        </div>
+                        @if (Model.CanSelectPriority)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => model.PriorityId)
+                                @Html.DropDownListFor(model => model.PriorityId, Model.AvailablePriority)
+                            </div>
+
+                        }
+                        @if (Model.SubjectShow)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => model.Subject)
+                                @Html.TextBoxFor(model => model.Subject, new { @class = "fullname", placeholder = T("Ticket.ContactForm.Subject.Hint") })
+                                @Html.ValidationMessageFor(model => model.Subject)
+                            </div>
+                        }
+                        @if (Model.FullNameShow)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => model.FullName)
+                                @Html.TextBoxFor(model => model.FullName, new { @class = "fullname", placeholder = T("Ticket.ContactForm.FullName.Hint") })
+                                @Html.ValidationMessageFor(model => model.FullName)
+                            </div>
+                        }
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.Email)
+                            @Html.TextBoxFor(model => model.Email, new { @class = "email", placeholder = T("Ticket.ContactForm.Email.Hint") })
+                            @Html.ValidationMessageFor(model => model.Email)
+                        </div>
+                        @if (Model.EnquiryShow)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => model.Enquiry)
+                                @Html.TextAreaFor(model => model.Enquiry, new { @class = "enquiry", placeholder = T("Ticket.ContactUs.Enquiry.Hint") })
+                                @Html.ValidationMessageFor(model => model.Enquiry)
+                            </div>
+                        }
+                        @Html.Partial("~/Plugins/Widgets.Tickets/Views/Public/_ContactAttributes.cshtml", Model.ContactAttributes, new ViewDataDictionary())
+                    </div>
+                </div>
+
+                if (Model.DisplayCaptcha)
+                {
+                    <div class="captcha-box">
+                        @Html.Raw(Html.GenerateCaptcha())
+                    </div>
+                }
+
+                <div class="buttons" style="padding-top:20px;">
+                    <input type="submit" name="send-email" class="button-1 contact-us-button" value="@T("Ticket.ContactUs.Button")" />
+                </div>
+            }
+        }
+        @Html.Widget("contactus_bottom")
+    </div>
+</div>

@@ -1,0 +1,73 @@
+﻿@model ProductDetailsModel.AddToCartModel
+@using Nop.Web.Models.Catalog;
+@using Nop.Core.Domain.Orders;
+@if (!Model.DisableBuyButton || Model.CustomerEntersPrice)
+{
+    <div class="marginTop10">
+        @if (Model.UpdatedShoppingCartItemId > 0)
+        {
+            @Html.HiddenFor(x => x.UpdatedShoppingCartItemId)
+        }
+        @if (Model.CustomerEntersPrice)
+        {
+            <div class="form">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CustomerEnteredPrice, new { }, ":")
+                    @*round price*@
+                    @Html.TextBox("CustomerEnteredPrice", Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice)), new { @class = "form-control maxWidth200 text-center" })
+                    @Model.CustomerEnteredPriceRange
+                </div>
+            </div>
+        }
+        @if (!Model.DisableBuyButton)
+        {
+            <div class="input-group maxWidth150">
+                @Html.LabelFor(model => model.EnteredQuantity, new { @style = "display:none;" }, ":")
+                @if (Model.AllowedQuantities.Count > 0)
+                {
+                    @Html.DropDownListFor(model => model.EnteredQuantity, Model.AllowedQuantities, new { @class = "form-control" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(model => model.EnteredQuantity, new { @class = "form-control" })
+
+                    //when a customer clicks 'Enter' button we submit the "add to cart" button (if visible)
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            $("#@Html.FieldIdFor(model => model.EnteredQuantity)").keydown(function (event) {
+                                if (event.keyCode == 13) {
+                                    $("#add-to-cart-button-@Model.ProductId").click();
+                                    return false;
+                                }
+                            });
+                        });
+                    </script>
+
+                }
+                @{
+                    var addToCartText = "";
+                    if (Model.UpdatedShoppingCartItemId > 0)
+                    {
+                        addToCartText = T("ShoppingCart.AddToCart.Update").Text;
+                    }
+                    else
+                    {
+                        addToCartText = T("ShoppingCart.AddToCart").Text;
+                        if (Model.IsRental)
+                        {
+                            addToCartText = T("ShoppingCart.Rent").Text;
+                        }
+                        if (Model.AvailableForPreOrder)
+                        {
+                            addToCartText = T("ShoppingCart.PreOrder").Text;
+                        }
+                    }
+                    <span class="input-group-btn">
+                        <input type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-primary product-box-add-to-cart-button" value="@addToCartText" data-productid="@Model.ProductId" onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart })', '#product-details-form');return false;" />
+                    </span>
+                }
+            </div>
+                    }
+        @Html.Widget("productdetails_add_info", Model.ProductId)
+    </div>
+                    }

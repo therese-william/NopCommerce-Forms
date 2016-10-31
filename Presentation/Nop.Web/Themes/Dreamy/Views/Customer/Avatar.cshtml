@@ -1,0 +1,44 @@
+﻿@model CustomerAvatarModel
+@using Nop.Web.Models.Customer;
+@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Account").Text);
+}
+@section left
+{
+    @Html.Action("CustomerNavigation", "Customer", new { selectedTabId = CustomerNavigationEnum.Avatar })
+}
+@using (Html.BeginRouteForm("CustomerAvatar", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+        <div class="page-header page-header-custom">
+            <h3>@T("Account.MyAccount") - @T("Account.Avatar")</h3>
+        </div>
+                var validationSummary = Html.ValidationSummary(true);
+
+            if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+            {
+                <div class="text-danger">@validationSummary</div>
+            }
+            <div class="form-group">
+                @if (!String.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <div class="marginBottom10">
+                        <img src="@(Model.AvatarUrl)" alt="avatar" />
+                    </div>
+                }
+                <input name="uploadedFile" type="file" />
+            </div>
+            <div class="marginBottom20">
+                <input type="submit" name="upload-avatar" class="btn btn-primary" value="@T("Common.Upload")" />
+                @if (!String.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <input type="submit" name="remove-avatar" class="btn btn-default" value="@T("Account.Avatar.RemoveAvatar")" />
+                }
+            </div>
+            <div class="info">
+                @T("Account.Avatar.UploadRules")
+            </div>
+
+}

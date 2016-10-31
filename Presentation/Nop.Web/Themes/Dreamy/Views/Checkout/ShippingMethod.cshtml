@@ -1,0 +1,64 @@
+﻿@model CheckoutShippingMethodModel
+@using Nop.Web.Models.Checkout;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Checkout").Text);
+}
+    @Html.Action("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Shipping })
+    <div class="page-header page-header-custom">
+        <h3 class="text-center">@T("Checkout.SelectShippingMethod")</h3>
+    </div>
+    <div class="page-body checkout-data">
+        <div class="">
+            @using (Html.BeginRouteForm("CheckoutShippingMethod", FormMethod.Post))
+            {
+                @Html.Widget("checkout_shipping_method_top")
+                if (Model.Warnings.Count == 0)
+                {
+                <ul class="method-list">
+                    @for (int i = 0; i < Model.ShippingMethods.Count; i++)
+                    {
+                        var shippingMethod = Model.ShippingMethods[i];
+                        <li>
+                            <div class="method-name">
+                                <input id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
+                                <label for="shippingoption_@(i)">@T("Checkout.SelectShippingMethod.MethodAndFee", shippingMethod.Name, shippingMethod.Fee)</label>
+                            </div>
+                            @if (!String.IsNullOrEmpty(shippingMethod.Description))
+                            {
+                                <div class="method-description">
+                                    @Html.Raw(shippingMethod.Description)
+                                </div>
+                            }
+                        </li>
+                    }
+                </ul>
+                if (Model.NotifyCustomerAboutShippingFromMultipleLocations)
+                {
+                    <div class="multiple-locations">
+                        @T("Checkout.ShippingMethod.ShippingFromMultipleLocations")
+                    </div>
+                }
+                <div class="text-center">
+                    <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="btn btn-primary" />
+                </div>
+                }
+                else
+                {
+                <div class="text-danger">
+                    <ul>
+                        @foreach (var warning in Model.Warnings)
+                        {
+                            <li>@warning</li>
+                        }
+                    </ul>
+                </div>
+                }
+                @Html.Widget("checkout_shipping_method_bottom")
+            }
+        </div>
+        <h4 class="text-center">@T("Checkout.OrderSummary")</h4>
+        @Html.Action("OrderSummary", "ShoppingCart")
+    </div>

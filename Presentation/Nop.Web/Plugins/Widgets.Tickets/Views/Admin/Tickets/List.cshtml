@@ -1,0 +1,289 @@
+﻿@model TicketListModel
+
+@using Nop.Plugin.Widgets.Tickets.Models;
+
+@{
+    Layout = "~/Administration/Views/Shared/_AdminLayout.cshtml";
+    //page title
+    ViewBag.Title = T("Admin.Ticket.List").Text;
+    var gridPageSize = Nop.Core.Infrastructure.EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-sales.png")" alt="" />
+            @T("Admin.Tickets")
+        </div>
+        
+    </div>
+    <table width="100%">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.StartDate):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.StartDate)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.EndDate):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => Model.EndDate)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.CustomerEmail):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => Model.CustomerEmail)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TicketStatusId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("TicketStatusId", Model.AvailableTicketStatuses)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DepartmentId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("DepartmentId", Model.AvailableDepartments)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.PriorityId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("PriorityId", Model.AvailablePriority)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.StoreId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("StoreId", Model.AvailableStores)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.StaffId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("StaffId", Model.AvailableStaff)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Subject):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => Model.Subject)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Body):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => Model.Body)
+            </td>
+        </tr>
+
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TicketId):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => Model.TicketId)
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+            </td>
+        </tr>
+    </table>
+    <p>
+    </p>
+    <table class="adminContent">
+        <tr>
+            <td>
+
+                <div id="tickets-grid"></div>
+
+                <script>
+                    $(document).ready(function() {
+                        $("#tickets-grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("TicketList", "TicketHeader", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: additionalData
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors"
+                                },
+                                requestEnd: function (e) {
+                                    if (e.type == "read") {
+                                        var response = e.response;
+                                    }
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                pageSize: @(gridPageSize),
+                                serverPaging: true,
+                                serverFiltering: true,
+                                serverSorting: true
+                        },
+                                pageable: {
+                            refresh: true
+                                },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,                        
+                        columns: [                            
+                            {
+                                field: "Id",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.IdTicket")",
+                                width: 50
+                            },
+                            {
+                                field: "StatusName",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.StatusName")",
+                                width: 200
+                            }, {
+                                field: "CustomerEmail",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.CustomerEmail")",
+                                width: 150,
+                            }, {
+                                field: "DepartmentName",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.DepartmentName")",
+                                width: 200
+                            }, {
+                                field: "StoreName",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.StoreName")",
+                                width: 200
+                            }, {
+                                field: "Subject",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.Subject")",
+                            width: 300
+                            }, {
+                                field: "CreateDate",
+                                title: "@T("Admin.Tickets.Fields.TicketHeader.CreateDate")",
+                                width: 150,
+                                type: "date",
+                                format: "{0:G}"
+                            },
+                            {
+                                field: "Id",
+                                title: "@T("Admin.Common.Edit")",
+                                width: 100,
+                                template: '<a href="Edit/#=Id#">@T("Admin.Common.Edit")</a>'
+                            }
+                        ]
+                    } );
+                        });
+                </script>
+
+
+
+@*
+                @(Html.Telerik().Grid<TicketHeaderModel>()
+                        .Name("ticket-grid")
+                        .ClientEvents(events => events
+                            .OnDataBinding("onDataBinding"))
+                        .Columns(columns =>
+                        {
+                            columns.Bound(x => x.Id);
+                            columns.Bound(x => x.StatusName);
+                            columns.Bound(x => x.CustomerEmail);
+                            columns.Bound(x => x.DepartmentName);
+                            columns.Bound(x => x.StoreName);
+                            columns.Bound(x => x.Subject).Width(300);
+                            columns.Bound(x => x.CreateDate);
+                            columns.Bound(x => x.Id)
+                                .Template(x =>Html.RouteLink("View", "Nop.Plugin.Widgets.Tickets.Edit", new { Id = x.Id }))
+                                .ClientTemplate(Html.RouteLink("View", "Nop.Plugin.Widgets.Tickets.Edit", new { Id = "<#= Id #>" }).ToHtmlString())
+                                .ReadOnly()
+                                .Width(150)
+                                .Title(T("Admin.Common.View").Text);
+                            // columns.Bound(x => x.Id)
+                               // .Template(x => Html.ActionLink(T("Admin.Common.View").Text, "Edit", new { id = x.Id }))
+                               // .ClientTemplate("<a href=\"Edit/<#= Id #>\">" + T("Admin.Common.View").Text + "</a>")
+                               // .Width(50)
+                               // .Title(T("Admin.Common.View").Text);
+                        })
+                        .Pageable(settings => settings.PageSize(gridPageSize).Position(GridPagerPosition.Both))
+                        .DataBinding(dataBinding => dataBinding.Ajax().Select("TicketList", "TicketHeader", new RouteValueDictionary() { { "Namespaces", "Nop.Plugin.Widgets.Tickets.Controllers" }, { "area", "" } }))
+                        .EnableCustomBinding(true))
+    *@
+            </td>
+        </tr>
+    </table>
+    
+        <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $('#btnSearch').click(function () {
+                //search
+                var grid = $('#tickets-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                grid.dataSource.read();
+                return false;
+            });
+
+            $("#@Html.FieldIdFor(model => model.CustomerEmail)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#btnSearch").click();
+                    return false;
+                }
+            });
+
+            
+        })
+
+        function additionalData() {
+            return {
+                StartDate: $('#@Html.FieldIdFor(model => model.StartDate)').val(),
+                EndDate: $('#@Html.FieldIdFor(model => model.EndDate)').val(),
+                CustomerEmail: $('#@Html.FieldIdFor(model => model.CustomerEmail)').val(),
+                TicketStatusId: $('#@Html.FieldIdFor(model => model.TicketStatusId)').val(),
+                DepartmentId: $('#@Html.FieldIdFor(model => model.DepartmentId)').val(),
+                StaffId: $('#@Html.FieldIdFor(model => model.StaffId)').val(),
+                StoreId: $('#@Html.FieldIdFor(model => model.StoreId)').val(),
+                PriorityId: $('#@Html.FieldIdFor(model => model.PriorityId)').val(),
+                TicketId: $('#@Html.FieldIdFor(model => model.TicketId)').val(),
+                Subject: $('#@Html.FieldIdFor(model => model.Subject)').val(),
+                Body: $('#@Html.FieldIdFor(model => model.Body)').val()
+        };
+        }
+
+        </script>
+    
+}

@@ -1,0 +1,8 @@
+﻿Group: Dreamy
+FriendlyName: Responsive Menu
+SystemName: Dreamy.Menu
+Version: 1.00
+SupportedVersions: 3.60
+Author: Dreamy Web Cave
+DisplayOrder: 1
+FileName: Nop.Plugin.Dreamy.Menu.dll

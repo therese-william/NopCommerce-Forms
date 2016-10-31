@@ -1,0 +1,68 @@
+﻿@model WishlistEmailAFriendModel
+@using Nop.Web.Models.ShoppingCart;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.WishlistEmailAFriend").Text);
+}
+<div class="page-header page-header-custom">
+    <h3 class="text-center">@T("Wishlist.EmailAFriend.Title")</h3>
+</div>
+    <div class="page-body">
+        @if (Model.SuccessfullySent)
+        {
+            <div class="minHeight250">
+                <div class="alert alert-success" role="alert">
+                    @Model.Result
+                </div>
+            </div>
+        }
+        else
+        {
+            using (Html.BeginForm())
+            {
+                var validationSummary = Html.ValidationSummary(true);
+                if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+                {
+                    <div class="text-danger">@validationSummary</div>
+                }
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.FriendEmail, new { @class = "col-sm-2 control-label" }, ":")
+                        <div class="col-sm-4">
+                            @Html.TextBoxFor(model => model.FriendEmail, new { @class = "form-control", placeholder = T("Products.EmailAFriend.FriendEmail.Hint") })
+                            <small class="text-danger">@Html.ValidationMessageFor(model => model.FriendEmail)</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.YourEmailAddress, new { @class = "col-sm-2 control-label" }, ":")
+                        <div class="col-sm-4">
+                            @Html.TextBoxFor(model => model.YourEmailAddress, new { @class = "form-control", placeholder = T("Products.EmailAFriend.YourEmailAddress.Hint") })
+                            <small class="text-danger">@Html.ValidationMessageFor(model => model.YourEmailAddress)</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PersonalMessage, new { @class = "col-sm-2 control-label" }, ":")
+                        <div class="col-sm-4">
+                            @Html.TextAreaFor(model => model.PersonalMessage, new { @class = "form-control", rows = "10", placeholder = T("Products.EmailAFriend.PersonalMessage.Hint") })
+                            <small class="text-danger">@Html.ValidationMessageFor(model => model.PersonalMessage)</small>
+                        </div>
+                    </div>
+                    @if (Model.DisplayCaptcha)
+                    {
+                        <div class="row marginTop10">
+                            <div class="col-md-offset-2 col-md-4">
+                                @Html.Raw(Html.GenerateCaptcha())
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group ">
+                        <div class="col-sm-offset-2 col-sm-4 text-right">
+                            <input type="submit" name="send-email" class="btn btn-primary" value="@T("Wishlist.EmailAFriend.Button")" />
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>

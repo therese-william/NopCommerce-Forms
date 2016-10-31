@@ -1,0 +1,464 @@
+﻿@model Nop.Plugin.Widgets.QuickMenu.Models.MenuModel
+@{
+    Layout = "";
+
+    Html.AddScriptParts("~/Plugins/Widgets.QuickMenu/Content/js/webslidemenu.js");
+    Html.AddCssFileParts("~/Plugins/Widgets.QuickMenu/Content/css/color-theme.css");
+    if (Model.OverrideColor)
+    {
+        Html.AddCssFileParts(string.Format("~/Plugins/Widgets.QuickMenu/Content/css/nopCommerce/{0}.css", Model.Color.Split('-')[0].ToString()));
+    }
+    if (Model.EnabledClick)
+    {
+        Html.AddCssFileParts("~/Plugins/Widgets.QuickMenu/Content/css/webslidemenu.css");
+    }
+    else
+    {
+        Html.AddCssFileParts("~/Plugins/Widgets.QuickMenu/Content/css/webslidemenu2.css");
+    }
+    Html.AddCssFileParts("~/Plugins/Widgets.QuickMenu/Content/font-awesome/css/font-awesome.min.css");
+}
+@using Nop.Web.Framework.UI
+@using Nop.Plugin.Widgets.QuickMenu
+@using Nop.Plugin.Widgets.QuickMenu.Models
+
+@if (Model.EnabledClick)
+{
+
+
+    <script type="text/javascript">
+	var removeClass = window.matchMedia("screen and (min-width: 781px)")
+	$(window).load(function(){
+	$('.wsmenu-list > li > a').on('click', function(){
+    if(!$(this).parents().hasClass('onclickopen')){
+        $('.wsmenu-list > li').removeClass('onclickopen');
+    }
+    $(this).parent().addClass('onclickopen');
+	removeClass = false;
+	});
+
+	$('.wsmenu-submenu > li > a').on('click', function(){
+    if(!$(this).parents().hasClass('onclickopen02')){
+        $('.wsmenu-submenu > li > a').removeClass('onclickopen02');
+    }
+    $(this).parent().addClass('onclickopen02');
+	removeClass = false;
+	});
+
+	$('.wsmenu-submenu-sub > li > a').on('click', function(){
+    if(!$(this).parents().hasClass('onclickopen03')){
+        $('.wsmenu-submenu-sub > li > a').removeClass('onclickopen03');
+    }
+    $(this).parent().addClass('onclickopen03');
+	removeClass = false;
+	});
+
+
+	$("body").click(function () {
+    if (removeClass){
+        $(".wsmenu-list > li").removeClass('onclickopen');
+		$(".wsmenu-submenu > li").removeClass('onclickopen02');
+		$(".wsmenu-submenu-sub > li").removeClass('onclickopen03');
+    }
+    removeClass = true;
+	});
+
+    });
+    </script>
+}
+
+
+<div class="wsmenucontent overlapblackbg"></div>
+<div class="wsmenuexpandermain slideRight">
+    <a id="navToggle" class="animated-arrow slideLeft"><span></span></a>
+</div>
+
+<nav class="wsmenu @(Model.Color) slideLeft clearfix">
+    <ul class="mobile-sub wsmenu-list">
+        @RenderMenu()
+    </ul>
+</nav>
+
+@if (Model.StandardMobileView)
+{
+    <style>
+        #navToggle {
+            display: none !important;
+        }
+    </style>
+    <div class="menu-toggle">@T("Menu")</div>
+    <ul class="top-menu mobile">
+        @RenderMenu2()
+    </ul>
+
+    <script type="text/javascript">
+            $(document).ready(function () {
+                $('.menu-toggle').click(function () {
+                    $(this).siblings('.top-menu.mobile').slideToggle('slow');
+                });
+                $('.top-menu.mobile .sublist-toggle').click(function () {
+                    $(this).siblings('.sublist').slideToggle('slow');
+                });
+            });
+    </script>
+
+}
+
+
+@helper RenderMenu2()
+{
+
+foreach (var item in Model.MainItems.OrderBy(x => x.Order))
+{
+    if (item.Typ == SiteCodeType.Homepage)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.Blog)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.Forum)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.MyAccount)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.NewProducts)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.ContactUs)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.Search)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.TopicUrl)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.Manufacturers || item.Typ == SiteCodeType.ManufacturersPicture)
+    {
+            <li>
+                <a>@(item.Name)</a>
+                <div class="sublist-toggle"></div>
+                <ul class="sublist 0">
+                    @foreach (var manuf in item.ManufacturerItems)
+            {
+                        <li><a href="@(manuf.Url)">@(manuf.Name)</a></li>
+                    }
+                </ul>
+            </li>
+    }
+    if (item.Typ == SiteCodeType.Categories || item.Typ == SiteCodeType.CategoriesPicture || item.Typ == SiteCodeType.CategoriesWide)
+    {
+            <li>
+                <a>@(item.Name)</a>
+                <div class="sublist-toggle"></div>
+                @{
+                    var rootCategoriesTopMenu = item.MenuCategoryItems.ToList();
+                }
+
+
+
+                <ul class="sublist 0">
+                    @foreach (var category in rootCategoriesTopMenu)
+                    {
+                        @RenderMenu2CategoryLine(category, 0)
+                    }
+                </ul>
+
+
+            </li>
+                        }
+                    }
+}
+
+@helper RenderMenu2CategoryLine(MenuCategoryModel category, int level)
+{
+    <li>
+
+        <a href="@category.Url">@category.Name</a>
+
+        @{
+            var levelClass = "";
+            if (level == 0)
+            {
+                levelClass = "firstLevel";
+                <div class="top-menu-triangle"></div>
+            }
+            if (category.SubCategories.Count > 0)
+            {
+                <span class="expand">&nbsp;</span>
+                <div class="sublist-toggle"></div>
+                <ul class="sublist @levelClass">
+                    @foreach (var subCategory in category.SubCategories)
+                    {
+                        @RenderMenu2CategoryLine(subCategory, level + 1)
+                    }
+                </ul>
+            }
+        }
+    </li>
+}
+
+
+
+@helper RenderMenu()
+{
+
+foreach (var item in Model.MainItems.OrderBy(x => x.Order))
+{
+    if (item.Typ == SiteCodeType.Homepage)
+    {
+            <li>
+                <a href="@(item.Url)" class="active">
+                    <i class="fa fa-home"></i><span class="hometext">@(item.Name)</span>
+                </a>
+            </li>
+    }
+    if (item.Typ == SiteCodeType.Blog)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.Forum)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.MyAccount)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.NewProducts)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.ContactUs)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.Search)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.TopicUrl)
+    {
+            <li><a href="@(item.Url)">@(item.Name)</a></li>
+    }
+    if (item.Typ == SiteCodeType.TopicContent)
+    {
+            <li>
+                <a href="#">@(item.Name)</a>
+                <div class="megamenu clearfix">
+                    <div class="typography-text clearfix">
+                        <div class="typographydiv">
+                            <h3 class="title">@(item.Name)</h3>
+                            @Html.Raw(item.Content)
+                        </div>
+                    </div>
+                </div>
+            </li>
+    }
+    if (item.Typ == SiteCodeType.Manufacturers)
+    {
+            <li>
+                <a href="#">@(item.Name)</a>
+                <ul class="wsmenu-submenu">
+                    @foreach (var manuf in item.ManufacturerItems)
+                    {
+                        <li><a href="@(manuf.Url)"><i class="fa fa-angle-right"></i>@(manuf.Name)</a></li>
+                    }
+                </ul>
+            </li>
+    }
+    if (item.Typ == SiteCodeType.ManufacturersPicture)
+    {
+            <li>
+                <a href="#">@(item.Name) </a>
+
+                <div class="megamenu clearfix">
+                    @foreach (var manuf in item.ManufacturerItems)
+                    {
+                        <div class="megacolimage" style="width:23%;">
+                            <h3 class="title">@(manuf.Name)</h3>
+                            <div><a href="@(manuf.Url)"><img src="@(manuf.PictureUrl)" alt="" /></a></div>
+                        </div>
+
+                    }
+                </div>
+            </li>
+    }
+
+
+    if (item.Typ == SiteCodeType.Categories)
+    {
+            <li>
+                <a href="#">@(item.Name)</a>
+
+                @{
+                    var rootCategories = item.MenuCategoryItems.ToList();
+                }
+
+                <ul class="wsmenu-submenu" id="ulMobile">
+                    @foreach (var category in rootCategories)
+                    {
+                        @RenderCategoryLine(category, 0, true)
+                    }
+                </ul>
+
+
+                @{
+                    var rootCategoriesTopMenu = item.MenuCategoryItems.Where(x => x.IncludeInTopMenu).ToList();
+                }
+
+                <ul class="wsmenu-submenu" id="ulnoMobile">
+                    @foreach (var category in rootCategoriesTopMenu)
+                    {
+                        @RenderCategoryLine(category, 0, false)
+                    }
+                </ul>
+
+
+            </li>
+                    }
+                    if (item.Typ == SiteCodeType.CategoriesWide)
+                    {
+                        <li>
+
+                            <a href="#">@(item.Name)</a>
+                            @{
+                                var rootCategories = item.MenuCategoryItems.ToList();
+                            }
+
+                            <ul class="wsmenu-submenu" id="ulMobile">
+                                @foreach (var category in rootCategories)
+                                {
+                                    @RenderCategoryLine(category, 0, true)
+                                }
+                            </ul>
+
+
+
+                            @{
+                                var rootCategoriesTopMenu = item.MenuCategoryItems.Where(x => x.IncludeInTopMenu).ToList();
+                            }
+                            <div class="megamenu clearfix" id="ulnoMobile">
+                                @foreach (var category in rootCategoriesTopMenu)
+                                {
+                                    @RenderCategoryLineWide(category, 0, false)
+                                }
+                            </div>
+
+                        </li>
+                                }
+                                if (item.Typ == SiteCodeType.CategoriesPicture)
+                                {
+                                    <li>
+
+                                        <a href="#">@(item.Name)</a>
+                                        @{
+                                            var rootCategories = item.MenuCategoryItems.ToList();
+                                        }
+
+                                        <ul class="wsmenu-submenu" id="ulMobile">
+                                            @foreach (var category in rootCategories)
+                                            {
+                                                @RenderCategoryLine(category, 0, true)
+                                            }
+                                        </ul>
+
+                                        @{
+                                            var rootCategoriesTopMenu = item.MenuCategoryItems.Where(x => x.IncludeInTopMenu).ToList();
+                                        }
+                                        <div class="megamenu clearfix" id="ulnoMobile">
+                                            @foreach (var category in rootCategoriesTopMenu)
+                                            {
+                                                @RenderCategoryLineWidePicture(category, 0, false)
+                                            }
+                                        </div>
+
+                                    </li>
+                                                }
+
+
+                                            }
+
+}
+
+
+@helper RenderCategoryLine(MenuCategoryModel category, int level, bool responsiveMobileMenu)
+{
+    <li>
+
+        <a href="@category.Url">@category.Name</a>
+        @{
+            //subcategories
+            var subCategories = responsiveMobileMenu ?
+                //responsive (all categories)
+                category.SubCategories :
+                //standard design (only categories with "IncludeInTopMenu")
+                category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
+
+            var levelClass = "wsmenu-submenu";
+
+            for (int i = 0; i <= level; i++)
+            {
+                levelClass = levelClass + "-sub";
+
+            }
+            if (subCategories.Count > 0)
+            {
+
+                <ul class="@levelClass">
+                    @foreach (var subCategory in subCategories)
+                    {
+                        @RenderCategoryLine(subCategory, level + 1, responsiveMobileMenu)
+                    }
+                </ul>
+            }
+        }
+    </li>
+}
+
+
+
+@helper RenderCategoryLineWide(MenuCategoryModel category, int level, bool responsiveMobileMenu)
+{
+    <ul class="megacollink">
+        <li><a class="title"> @category.Name</a></li>
+        @foreach (var subCategory in category.SubCategories)
+        {
+            <li><a href="@(subCategory.Url)">@subCategory.Name</a></li>
+        }
+    </ul>
+
+}
+
+
+
+@helper RenderCategoryLineWidePicture(MenuCategoryModel category, int level, bool responsiveMobileMenu)
+{
+
+    <div class="megacolimage">
+        <h3 class="title"><a class="title" style="border-bottom: 0px;"> @category.Name</a></h3>
+        <div>
+            <div style="float: left;padding: 15px 15px 0px 0px;"><a href="@(category.Url)"><img src="@(category.PictureUrl)" alt="" /></a></div>
+            <div style="float: left;">
+                <ul class="megacollink">
+                    @foreach (var subCategory in category.SubCategories)
+                    {
+                        <li><a href="@(subCategory.Url)">@subCategory.Name</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+}
+

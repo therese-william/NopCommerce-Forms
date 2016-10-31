@@ -1,0 +1,56 @@
+﻿@model Nop.Plugin.Widgets.Tickets.Models.ContactFormModel
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework.Localization;
+@using Nop.Services.Localization;
+@using Nop.Core;
+@{
+    Html.AppendCssFileParts("~/Plugins/Widgets.Tickets/Content/styles.css");
+    Html.AddScriptParts("~/Scripts/jquery.magnific-popup.js");
+    Html.AddCssFileParts("~/Content/magnific-popup/magnific-popup.css");
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.linkCreate').magnificPopup({
+            type: 'inline',
+            preloader: false,
+        });
+
+        $('#sendticket').on("click", function () {
+
+            if ($('#ticketProductForm').valid()) {
+
+                $.ajax({
+                    data: $('#ticketProductForm').serialize(),
+                    url: '@Url.RouteUrl("Nop.Plugin.Widgets.Tickets.ProductForm")',
+                    type: 'post',
+                    success: function (data) {
+                        if (data.success) {
+                            $('.createnewticket').html('');
+                            $('.errorresultnewticket').hide();
+                            $('.resultnewticket').show();
+                            $('.resultnewticket').html(data.message);
+                        }
+                        else {
+                            $('.errorresultnewticket').show();
+                            $('.errorresultnewticket').html(data.message);
+                        }
+                    },
+                    error: function () {
+                        alert('error');
+                    }
+                });
+            }
+            return false;
+
+        });
+
+    });
+
+</script>
+
+<div style="padding:20px;">
+    <a class="linkCreate" href="#open-Modal">@T("Ticket.CreateProductTicket").Text</a>
+</div>
+

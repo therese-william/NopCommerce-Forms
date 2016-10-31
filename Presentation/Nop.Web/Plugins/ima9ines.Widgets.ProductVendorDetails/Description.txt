@@ -1,0 +1,8 @@
+﻿Group: ima9ines
+FriendlyName: Product Vendor Details
+SystemName: ima9ines.Widgets.ProductVendorDetails
+Version: 1.10
+SupportedVersions: 3.50
+Author: ima9ines, ima9ines.com
+DisplayOrder: 1
+FileName: ima9ines.Nop.Plugin.Widgets.ProductVendorDetails.dll

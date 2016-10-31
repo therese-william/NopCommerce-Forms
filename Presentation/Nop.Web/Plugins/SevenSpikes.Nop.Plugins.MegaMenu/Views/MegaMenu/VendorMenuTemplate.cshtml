@@ -1,0 +1,38 @@
+﻿@** Copyright 2015 Seven Spikes Ltd. All rights reserved. (http://www.nop-templates.com)
+* http://www.nop-templates.com/t/licensinginfo
+*@
+
+@using Nop.Core.Infrastructure
+@using SevenSpikes.Nop.Framework.MVCExtensions
+
+@model SevenSpikes.Nop.Plugins.MegaMenu.Models.MegaMenuVendorsModels
+
+@if (Model.VendorsModels.Count > 0)
+{
+    var megaMenuSettings = EngineContext.Current.Resolve<SevenSpikes.Nop.Plugins.MegaMenu.Domain.MegaMenuSettings>();
+    <li>
+        <a href="@Url.RouteUrl("VendorList")" class="with-subcategories" title="@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.VendorsColumnName")">@Html.GetResourceForCurrentStore("SevenSpikes.MegaMenu.Admin.Settings.VendorsColumnName")</a>
+        <div class="plus-button"></div>
+        <div class="sublist-wrap">
+            <ul class="sublist vendors">
+                <li class="back-button">
+                    <span>@T("SevenSpikes.MegaMenu.ResponsiveBackButton")</span>
+                </li>
+                @{
+    foreach (var vendor in Model.VendorsModels)
+    {
+                        <li>
+                            <a href="@Url.RouteUrl("Vendor", new { SeName = vendor.SeName })" title="@vendor.Name">@vendor.Name</a>
+                        </li>
+    }
+    if (Model.VendorsModels.Count >= megaMenuSettings.NumberOfVendors)
+    {
+                        <li>
+                            <a class="view-all" href="@Url.RouteUrl("VendorList")" title="@T("SevenSpikes.MegaMenu.ViewAllVendors")">@T("SevenSpikes.MegaMenu.ViewAllVendors")</a>
+                        </li>
+    }
+                }
+            </ul>
+        </div>
+</li>
+}

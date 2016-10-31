@@ -1,0 +1,122 @@
+﻿@model ForumTopicPageModel
+@using Nop.Web.Models.Boards;
+@using Nop.Web.Models.Common;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    Html.AddTitleParts(Model.Subject);
+}
+@Html.Action("ForumBreadcrumb", new { forumTopicId = Model.Id })
+@Html.Partial("_ForumHeader")
+<div class="page-header">
+    <h3>@Model.Subject</h3>
+</div>
+<div class="text-center">
+    @if (Model.IsCustomerAllowedToEditTopic)
+            {
+        <a class="btn btn-default tooltipOn" href="@Url.RouteUrl("TopicEdit", new { id = Model.Id })" data-toggle="tooltip" title="@T("Forum.EditTopic")">
+            <i class="glyphicon glyphicon-pencil"></i> <span class="hidden-xs">@T("Forum.EditTopic")</span>
+        </a>
+    }
+    @if (Model.IsCustomerAllowedToDeleteTopic)
+            {
+        <a class="btn btn-default tooltipOn" href="@Url.RouteUrl("TopicDelete", new { id = Model.Id })" data-toggle="tooltip" title="@T("Forum.DeleteTopic")" onclick="@(String.Format(" return confirm('{0}');", T("common.areyousure").Text))">
+            <i class="glyphicon glyphicon-trash text-danger"></i> <span class="hidden-xs">@T("Forum.DeleteTopic")</span>
+        </a>
+    }
+    @if (Model.IsCustomerAllowedToMoveTopic)
+            {
+        <a class="btn btn-default tooltipOn" href="@Url.RouteUrl("TopicMove", new { id = Model.Id })" data-toggle="tooltip" title="@T("Forum.MoveTopic")">
+            <i class="glyphicon glyphicon-move"></i> <span class="hidden-xs">@T("Forum.MoveTopic")</span>
+        </a>
+
+    }
+    <a class="btn btn-default tooltipOn" href="@Url.RouteUrl("PostCreate", new { id = Model.Id })" data-toggle="tooltip" title="@T("Forum.Reply")">
+        <i class="fa fa-reply text-primary"></i> <span class="hidden-xs">@T("Forum.Reply")</span>
+    </a>
+    @if (Model.IsCustomerAllowedToSubscribe)
+            {
+        <a class="btn btn-default tooltipOn" href="#" id="watch-topic-top" data-toggle="tooltip" title="@Model.WatchTopicText">
+            <i class="glyphicon glyphicon-eye-open"></i> <span class="hidden-xs">@Model.WatchTopicText</span>
+        </a>
+        <script type="text/javascript">
+            $(function () {
+                $('#watch-topic-top').click(function () {
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: '@Url.RouteUrl("TopicWatch", new { id = Model.Id })',
+                        dataType: 'json',
+                        success: function (data) {
+                            $('#watch-topic-top').text(data.Text);
+                            $('#watch-topic-bottom').text(data.Text);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Failed to watch');
+                        }
+                    });
+                });
+            });
+        </script>
+    }
+</div>
+@{
+            var pager = Html.Pager(new PagerModel
+            {
+                PageSize = Model.PostsPageSize,
+                TotalRecords = Model.PostsTotalRecords,
+                PageIndex = Model.PostsPageIndex,
+                ShowTotalSummary = false,
+                RouteActionName = "TopicSlugPaged",
+                UseRouteLinks = true,
+                RouteValues = new RouteValues { id = Model.Id, slug = Model.SeName }
+            });
+}
+@if (!MvcHtmlString.IsNullOrEmpty(pager))
+{
+    <div class="pager pagerForum">
+        @pager
+    </div>
+}
+
+@foreach (var post in @Model.ForumPostModels)
+{
+    Html.RenderPartial("_ForumPost", post);
+}
+@if (!MvcHtmlString.IsNullOrEmpty(pager))
+{
+    <div class="pager pagerForum">
+        @pager
+    </div>
+}
+
+<div class="text-center">
+    <a class="btn btn-default tooltipOn" href="@Url.RouteUrl("PostCreate", new { id = Model.Id })" data-toggle="tooltip" title="@T("Forum.Reply")">
+        <i class="fa fa-reply text-primary"></i> <span class="hidden-xs">@T("Forum.Reply")</span> 
+    </a>
+    @if (Model.IsCustomerAllowedToSubscribe)
+            {
+        <a class="btn btn-default tooltipOn" href="#" id="watch-topic-top" data-toggle="tooltip" title="@Model.WatchTopicText">
+            <i class="glyphicon glyphicon-eye-open"></i> <span class="hidden-xs">@Model.WatchTopicText</span> 
+        </a>
+        <script type="text/javascript">
+            $(function () {
+                $('#watch-topic-bottom').click(function () {
+                    $.ajax({
+                        cache: false,
+                        type: 'POST',
+                        url: '@Url.RouteUrl("TopicWatch", new { id = Model.Id })',
+                        dataType: 'json',
+                        success: function (data) {
+                            $('#watch-topic-top').text(data.Text);
+                            $('#watch-topic-bottom').text(data.Text);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Failed to watch');
+                        }
+                    });
+                });
+            });
+        </script>
+    }
+</div>

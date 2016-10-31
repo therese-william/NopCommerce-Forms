@@ -1,0 +1,118 @@
+﻿@model ActiveDiscussionsModel
+@using Nop.Web.Models.Boards;
+@using Nop.Web.Models.Common;
+<div class="forums-table-section topic-group active-discussions">
+    <h3>
+        @if (Model.ActiveDiscussionsFeedEnabled)
+        {
+            <a href="@Url.RouteUrl("ActiveDiscussionsRSS")" class="tooltipOn pull-right" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
+                <i class="fa fa-rss-square colorRss"></i>
+            </a>
+        }
+        @T("Forum.ActiveDiscussions")
+    </h3>
+        @{
+            var pager = Html.Pager(new PagerModel
+            {
+                PageSize = Model.TopicPageSize,
+                TotalRecords = Model.TopicTotalRecords,
+                PageIndex = Model.TopicPageIndex,
+                ShowTotalSummary = false,
+                RouteActionName = "ActiveDiscussionsPaged",
+                UseRouteLinks = true,
+                RouteValues = new ForumActiveDiscussionsRouteValues()
+            });
+        }
+    @if (!MvcHtmlString.IsNullOrEmpty(pager))
+    {
+        <div class="pager upper">
+            @pager
+        </div>
+    }
+    <div class="forums-table-section-body">
+        @if (Model.ForumTopics.Count > 0)
+        {
+            <div class="table-wrapper">
+                <table class="table table-bordered table-responsive">
+                    <colgroup>
+                        <col />
+                        <col width="1" />
+                        <col width="1" />
+                        <col width="10%" />
+                    </colgroup>
+                    <thead>
+                        <tr class="active">
+                            <th class="topic-details">
+                                @T("Forum.TopicTitle")
+                            </th>
+                            <th class="replies">
+                                <span class="hidden-xs">@T("Forum.Replies")</span>
+                                <i class="visible-xs fa fa-reply-all tooltipOn" data-toggle="tooltip" title="@T("Forum.Replies")"></i>
+                            </th>
+                            <th class="views">
+                                <span class="hidden-xs">@T("Forum.Views")</span>
+                                <i class="visible-xs fa fa-eye tooltipOn" data-toggle="tooltip" title="@T("Forum.Views")"></i>
+                            </th>
+                            <th class="latest-post">
+                                @T("Forum.LatestPost")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var topic in Model.ForumTopics)
+                        {
+                            <tr>
+                                <td class="topic-details">
+                                    <div class="marginBottom10">
+                                        @Html.RouteLink(topic.Subject, "TopicSlug", new { id = topic.Id, slug = topic.SeName })
+                                    </div>
+                                    @if (topic.NumPosts > Model.PostsPageSize)
+                                    {
+                                        <div class="small">
+                                            @Html.ForumTopicSmallPager(topic)
+                                        </div>
+                                    }
+                                    <div class="small">
+                                        @if (topic.CustomerId > 0)
+                                        {
+                                            <label>@T("Forum.Author"):</label>
+                                            if (topic.AllowViewingProfiles && !topic.IsCustomerGuest)
+                                            {
+                                                @Html.RouteLink(topic.CustomerName, "CustomerProfile", new { Id = topic.CustomerId })
+                                            }
+                                            else
+                                            {
+                                                @topic.CustomerName
+                                            }
+                                        }
+                                    </div>
+                                </td>
+                                <td class="replies">
+                                    @topic.NumReplies
+                                </td>
+                                <td class="views">
+                                    @topic.Views
+                                </td>
+                                <td class="small">
+                                    @Html.Action("LastPost", new { forumPostId = topic.LastPostId, showTopic = false })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    @if (!MvcHtmlString.IsNullOrEmpty(pager))
+    {
+        <div class="pager lower">
+            @pager
+        </div>
+    }
+    @if (Model.ViewAllLinkEnabled)
+    {
+        <div class="text-right">
+            @Html.RouteLink(T("Forum.ActiveDiscussions.ViewAll").Text, "ActiveDiscussions", null)
+        </div>
+    }
+</div>

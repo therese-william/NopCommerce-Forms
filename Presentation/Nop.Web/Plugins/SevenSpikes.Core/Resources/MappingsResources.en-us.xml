@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+  <LocaleResource Name="SevenSpikes.Mappings">
+    <Value>Nop Mappings</Value>
+  </LocaleResource>
+  <LocaleResource Name="SevenSpikes.Mappings.WidgetZones">
+    <Value>Widget Zones</Value>
+  </LocaleResource>
+  <LocaleResource Name="SevenSpikes.Mappings.WidgetZones.DisplayOrder">
+    <Value>Display Order</Value>
+  </LocaleResource>
+  <LocaleResource Name="SevenSpikes.Mappings.WidgetZones.Name">
+    <Value>Widget Zone</Value>
+  </LocaleResource>
+</Language>

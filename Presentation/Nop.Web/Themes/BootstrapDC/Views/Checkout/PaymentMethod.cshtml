@@ -1,0 +1,71 @@
+﻿@model CheckoutPaymentMethodModel
+@using Nop.Web.Models.Checkout;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Checkout").Text);
+}
+<div class="page checkout-page payment-method-page">
+    @Html.Action("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Payment })
+    <div class="page-header page-header-custom">
+        <h3 class="text-center">@T("Checkout.PaymentMethod")</h3>
+    </div>
+    <div class="page-body checkout-data">
+        @Html.Widget("checkout_payment_method_top")
+        <div class="section payment-method">
+            @using (Html.BeginRouteForm("CheckoutPaymentMethod", FormMethod.Post))
+            {
+                if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
+                {
+                <div class="text-center">
+                    @Html.EditorFor(model => model.UseRewardPoints)
+                    @string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsAmount)
+                </div>
+                }
+                if (Model.PaymentMethods.Count > 0)
+                {
+                <ul class="method-list">
+                    @for (int i = 0; i < Model.PaymentMethods.Count; i++)
+                    {
+                        var paymentMethod = Model.PaymentMethods[i];
+                        var paymentMethodName = paymentMethod.Name;
+                        if (!String.IsNullOrEmpty(paymentMethod.Fee))
+                        {
+                            paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                        }
+                        <li>
+                            <div class="method-name">
+                                @if (!String.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                {
+                                    <div class="payment-logo">
+                                        <label for="paymentmethod_@(i)">
+                                            <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                        </label>
+                                    </div>
+                                }
+                                <div class="payment-details">
+                                    <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                    <label for="paymentmethod_@(i)">@paymentMethodName</label>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <div class="text-center">
+                    <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="btn btn-primary" />
+                </div>
+                }
+                else
+                {
+                <div class="text-danger">
+                    @T("Checkout.NoPaymentMethods")
+                </div>
+                }
+            }
+        </div>
+        @Html.Widget("checkout_payment_method_bottom")
+        <h4 class="text-center">@T("Checkout.OrderSummary")</h4>
+        @Html.Action("OrderSummary", "ShoppingCart")
+    </div>
+</div>
